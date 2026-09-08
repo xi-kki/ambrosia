@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-color: #0a0a0a;
+  --text-color: #ffffff;
+  --accent-color: #ffffff;
+  --muted-color: rgba(255, 255, 255, 0.7);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --font-main: 'Inter', sans-serif;
+  --font-heading: 'Galada', cursive;
+  --bg-inner: #0b8a78;
+  --bg-mid: #044e3b;
+  --bg-outer: #011411;
+}
+
+body.blue-theme {
+  --bg-inner: #0b4f8a;
+  --bg-mid: #04294e;
+  --bg-outer: #010c14;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: radial-gradient(circle at center, var(--bg-inner) 0%, var(--bg-mid) 50%, var(--bg-outer) 100%);
+  color: var(--text-color);
+  font-family: var(--font-main);
+  overflow: hidden;
+  height: 100vh;
+  transition: background 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes floatUpImg {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.4; }
+  90% { opacity: 0.4; }
+  100% { transform: translateY(-110vh) translateX(30px) rotate(360deg); opacity: 0; }
+}
+
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+@keyframes shine { from { transform: translateX(-100%) rotate(45deg); } to { transform: translateX(200%) rotate(45deg); } }
+
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-slide-up { animation: slideUp 0.4s ease-out; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.glass { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.1); }
+
+.nav-item { @apply font-manrope text-sm text-white/70 px-4 py-2 rounded-full transition; }
+.nav-item:hover, .nav-item.active { @apply bg-soda-pink text-soda-dark; }
+
+.primary-btn { @apply flex items-center gap-3 bg-black/50 text-white px-6 py-3 rounded-full font-bold cursor-pointer transition hover:bg-black/70 hover:-translate-y-1; }
+.plus-icon { @apply bg-soda-pink text-soda-dark w-10 h-10 flex items-center justify-center rounded-full text-xl font-black; }
+
+.card { @apply bg-white/5 border border-white/10 p-4 pt-20 rounded-[28px] flex flex-col items-center gap-6 cursor-pointer transition-all duration-300 w-[135px] relative backdrop-blur-sm; }
+.card:hover { @apply bg-white/10 border-white/40; }
+.card.active { @apply border-soda-pink; }
+.card img { @apply w-[140px] -mt-20 drop-shadow-[0_20px_35px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out pointer-events-none; }
+.card:hover img { @apply -translate-y-8 -rotate-3 scale-115; }
+.card-info { @apply flex flex-col text-xs w-full; }
+.card-info span:first-child { @apply font-semibold; }
+.card-info span:last-child { @apply text-white/70; }
+
+.award-badge { @apply flex items-center gap-4 mt-auto; }
+.award-icon { @apply w-12 h-12 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center; }
+
+.bubble-img { position: absolute; pointer-events: none; }
+
+.berry { @apply absolute outline-none drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] transition-transform duration-700 ease-out; }
+.leaf { @apply absolute pointer-events-none z-[-1] drop-shadow-[0_5px_15px_rgba(0,0,0,0.2)]; }
+
+@media (max-width: 1200px) {
+  .main-title, .side-title { font-size: 5rem; }
+  .hero-right { @apply items-center text-center; }
+  .side-title { @apply text-center; }
+}
