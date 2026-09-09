@@ -16,6 +16,9 @@ const config: Config = {
         sans: ['var(--font-inter)', 'sans-serif'],
         manrope: ['var(--font-manrope)', 'sans-serif'],
       },
+      scale: {
+        '115': '1.15',
+      },
       animation: { float: 'float 6s ease-in-out infinite' },
       keyframes: { float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } } },
     },

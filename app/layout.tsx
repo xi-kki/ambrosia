@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { Inter, Manrope, Galada } from 'next/font/google';
+import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope', display: 'swap', weight: ['400','500','700'] });
