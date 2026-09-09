@@ -5,7 +5,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        soda: {
+        ambrosia: {
           pink: '#fbcfe8', pinkDark: '#f5a8d0',
           dark: '#011411', teal: '#0b8a78', tealDark: '#044e3b',
           blue: '#0b4f8a', blueDark: '#04294e',

@@ -1,332 +1,319 @@
 'use client';
+
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Link from 'next/link';
 
-const ASSETS = {
-  leaves: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/leaves.glb',
-  cherry: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/cherry.glb',
-  blueberry: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/blueberry.glb',
-  can: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/deit_soda2.glb',
-  greenSoda: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Green%20Soda.png',
-  blueSoda: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Blue%20Soda.png',
-  greenTex: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/green%20base%20color.jpg',
-  blueTex: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/blue%20base%20color.jpg',
-  bubble: 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/bubble.png',
-};
-
-const berryPositions = [
-  { id: 'b1', top: '25%', left: '30%', w: 220, h: 220, orbit: '45deg 120deg 105%', exp: 1.2 },
-  { id: 'b2', top: '60%', left: '42%', w: 100, h: 100, orbit: '-120deg 45deg 105%', exp: 1.2 },
-  { id: 'b3', top: '30%', left: '62%', w: 250, h: 250, orbit: '200deg 90deg 105%', exp: 1.2 },
-  { id: 'b4', top: '15%', left: '48%', w: 140, h: 140, orbit: '10deg 20deg 105%', exp: 1.2 },
-  { id: 'b5', top: '75%', left: '20%', w: 120, h: 120, orbit: '-45deg 160deg 105%', exp: 1.2 },
-  { id: 'b6', top: '45%', left: '75%', w: 180, h: 180, orbit: '80deg 75deg 105%', exp: 1.2 },
-];
-
-const bgBerryPositions = [
-  { id: 'b7', top: '15%', left: '40%', w: 80, h: 80, orbit: '-20deg 110deg 105%', exp: 1.0, op: 0.7 },
-  { id: 'b8', top: '50%', left: '55%', w: 70, h: 70, orbit: '160deg 45deg 105%', exp: 1.0, op: 0.6 },
-  { id: 'b9', top: '80%', left: '35%', w: 75, h: 75, orbit: '45deg 20deg 105%', exp: 1.0, op: 0.7 },
-];
-
-const leafPositions = [
-  { id: 'l1', top: '10%', left: '15%', w: 60, h: 60, orbit: '45deg 75deg 105%' },
-  { id: 'l2', top: '40%', left: '80%', w: 140, h: 140, orbit: '-30deg 60deg 105%', op: 0.4 },
-  { id: 'l3', top: '70%', left: '75%', w: 80, h: 80, orbit: '120deg 85deg 105%' },
-  { id: 'l4', top: '85%', left: '20%', w: 120, h: 120, orbit: '10deg 45deg 105%', op: 0.3 },
-];
-
-const durations = [5, 7, 6, 8, 5.5, 6.5, 9, 11, 10];
+gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
+  const canRef = useRef<HTMLElement>(null);
+  const [flavor, setFlavor] = useState<'classic' | 'blue'>('classic');
   const [isLoaded, setIsLoaded] = useState(false);
-  const [blueTex, setBlueTex] = useState<HTMLImageElement | null>(null);
-  const [greenTex, setGreenTex] = useState<HTMLImageElement | null>(null);
-  const productModel = useRef<any>(null);
-  const berriesFG = useRef<HTMLDivElement>(null);
-  const berriesBG = useRef<HTMLDivElement>(null);
-  const leavesContainer = useRef<HTMLDivElement>(null);
-  const bubblesContainer = useRef<HTMLDivElement>(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0, px: 0, py: 0 });
-  const [currentMouse, setCurrentMouse] = useState({ x: 0, y: 0 });
-  const [switchSpin, setSwitchSpin] = useState(0);
-  const [isSwitching, setIsSwitching] = useState(false);
-  const [theme, setTheme] = useState<'classic'|'blue'>('classic');
-  const berryRefs = useRef<(HTMLModelElement | null)[]>([]);
-  const leafRefs = useRef<(HTMLModelElement | null)[]>([]);
-  const berryData = useRef<Array<{angle:number,baseX:number,baseY:number,rx:number,ry:number}>>([]);
-  let animId: number;
+
+  const flavors = [
+    { id: 'classic', name: 'Classic', color: 'ambrosia-teal', bg: 'body' },
+    { id: 'blue', name: 'Zero Lime', color: 'ambrosia-blue', bg: 'body blue-theme' },
+  ];
 
   useEffect(() => {
-    // Preload textures
-    const bt = new Image(); bt.src = ASSETS.blueTex; bt.onload = () => setBlueTex(bt);
-    const gt = new Image(); gt.src = ASSETS.greenTex; gt.onload = () => setGreenTex(gt);
+    const modelViewer = canRef.current;
+    if (!modelViewer) return;
 
-    // Initialize berry data
-    berryData.current = Array.from({length: 9}, () => ({
-      angle: Math.random() * 360, baseX: 0, baseY: 0, rx: 0, ry: 0
-    }));
+    modelViewer.addEventListener('load', () => setIsLoaded(true));
 
-    // Bubbles
-    const bubbleInterval = setInterval(() => {
-      if (!bubblesContainer.current) return;
-      const b = document.createElement('img');
-      b.src = ASSETS.bubble;
-      b.className = 'bubble-img';
-      const size = Math.random() * 20 + 10;
-      b.style.width = size + 'px';
-      b.style.height = 'auto';
-      b.style.left = Math.random() * 100 + '%';
-      b.style.bottom = '-50px';
-      b.style.opacity = (Math.random() * 0.4 + 0.2).toString();
-      const dur = Math.random() * 6 + 4;
-      b.style.animation = `floatUpImg ${dur}s linear forwards`;
-      bubblesContainer.current.appendChild(b);
-      setTimeout(() => b.remove(), dur * 1000);
-    }, 400);
-
-    // Animation loop
-    const animate = () => {
-      const time = Date.now() * 0.001;
-      setCurrentMouse(cm => ({
-        x: cm.x + (mouse.x - cm.x) * 0.05,
-        y: cm.y + (mouse.y - cm.y) * 0.05
-      }));
-
-      if (productModel.current) {
-        productModel.current.cameraOrbit = `${(currentMouse.x * 40) + switchSpin}deg ${90 + (currentMouse.y * 20)}deg 380%`;
-      }
-      if (berriesFG.current) berriesFG.current.style.transform = `translate(${currentMouse.x * 60}px, ${currentMouse.y * 60}px)`;
-      if (berriesBG.current) berriesBG.current.style.transform = `translate(${currentMouse.x * -30}px, ${currentMouse.y * -30}px)`;
-      if (leavesContainer.current) leavesContainer.current.style.transform = `translate(${currentMouse.x * -15}px, ${currentMouse.y * -15}px)`;
-
-      if (!isSwitching) {
-        berryRefs.current.forEach((berry, i) => {
-          if (!berry) return;
-          const rect = berry.getBoundingClientRect();
-          const bx = rect.left + rect.width / 2;
-          const by = rect.top + rect.height / 2;
-          const dx = mouse.px - bx;
-          const dy = mouse.py - by;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          let trx = 0, tryy = 0, sm = 1;
-          if (dist < 400) {
-            const force = (400 - dist) / 400;
-            trx = (dx / dist) * force * -80;
-            tryy = (dy / dist) * force * -80;
-            sm = 1 + force * 5;
-          }
-          const d = berryData.current[i];
-          d.rx += (trx - d.rx) * 0.1;
-          d.ry += (tryy - d.ry) * 0.1;
-          d.angle += 0.2 * sm;
-          const dur = durations[i % 9];
-          const phase = (time + i * 0.7) * (Math.PI * 2 / dur);
-          const fy = Math.sin(phase) * 15;
-          const fa = Math.cos(phase) * 6;
-          berry.style.transform = `translate(calc(${d.rx + d.baseX}px), calc(${d.ry + d.baseY}px + ${fy}px)) rotate(calc(${d.angle}deg + ${fa}deg))`;
-        });
-      }
-
-      leafRefs.current.forEach((leaf, i) => {
-        if (!leaf) return;
-        const dur = 10 + i * 2;
-        const phase = (time + i * 1.2) * (Math.PI * 2 / dur);
-        const fy = Math.sin(phase) * 20;
-        const fx = Math.cos(phase * 0.5) * 15;
-        const fa = Math.sin(phase * 0.3) * 15;
-        leaf.style.transform = `translate(${fx}px, ${fy}px) rotate(${fa}deg)`;
-      });
-
-      animId = requestAnimationFrame(animate);
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!modelViewer) return;
+      const rect = modelViewer.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 30;
+      const y = ((e.clientY - rect.top) / rect.height - 0.5) * -30;
+      modelViewer.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
     };
-    animate();
 
-    setIsLoaded(true);
-    return () => { clearInterval(bubbleInterval); cancelAnimationFrame(animId); };
-  }, [isSwitching, switchSpin, currentMouse, mouse]);
-
-  const handleSwitch = async (flavor: 'classic' | 'blue') => {
-    if (isSwitching) return;
-    setIsSwitching(true);
-    setTheme(flavor);
-    document.body.classList.toggle('blue-theme', flavor === 'blue');
-
-    // Animate background
-    gsap.to(document.body, {
-      '--bg-inner': flavor === 'blue' ? '#0b4f8a' : '#0b8a78',
-      '--bg-mid': flavor === 'blue' ? '#04294e' : '#044e3b',
-      '--bg-outer': flavor === 'blue' ? '#010c14' : '#011411',
-      duration: 1.5, ease: 'power2.inOut'
-    });
-
-    // Can spin
-    const spinObj = { val: 0, blur: 0 };
-    await gsap.to(spinObj, { val: 360, blur: 15, duration: 0.6, ease: 'power2.in',
-      onUpdate: () => { setSwitchSpin(spinObj.val); if (productModel.current) productModel.current.style.filter = `blur(${spinObj.blur}px)`; },
-      onComplete: async () => {
-        // Swap texture
-        if (productModel.current && productModel.current.model) {
-          const tex = flavor === 'blue' ? blueTex : greenTex;
-          if (tex) productModel.current.model.materials.forEach((m: any) => m.pbrMetallicRoughness?.baseColorTexture?.setTexture(tex));
-        }
-        await gsap.to(spinObj, { val: 720, blur: 0, duration: 1.5, ease: 'back.out(0.7)',
-          onUpdate: () => { setSwitchSpin(spinObj.val); if (productModel.current) productModel.current.style.filter = `blur(${spinObj.blur}px)`; },
-          onComplete: () => { setSwitchSpin(0); if (productModel.current) productModel.current.style.filter = 'none'; }
-        });
+    const handleMouseLeave = () => {
+      if (modelViewer) {
+        modelViewer.style.transform = 'rotateY(0deg) rotateX(0deg)';
       }
+    };
+
+    modelViewer.addEventListener('mousemove', handleMouseMove);
+    modelViewer.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      modelViewer.removeEventListener('mousemove', handleMouseMove);
+      modelViewer.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+
+    tl.from('.main-title', { y: 100, opacity: 0, duration: 1, ease: 'power3.out' })
+      .from('.side-title', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+      .from('.hero-desc', { y: 30, opacity: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4')
+      .from('.cta-group', { y: 30, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.1 }, '-=0.3')
+      .from('.nav-item', { y: -20, opacity: 0, duration: 0.5, ease: 'power3.out', stagger: 0.05 }, '-=0.5')
+      .from('.flavor-carousel', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.3');
+
+    const bubbles = document.querySelectorAll('.bubble-img');
+    bubbles.forEach((bubble, i) => {
+      gsap.to(bubble, {
+        y: -110 * window.innerHeight / 100,
+        x: gsap.utils.random(-50, 50),
+        rotation: 360,
+        duration: gsap.utils.random(8, 15),
+        delay: gsap.utils.random(0, 5),
+        repeat: -1,
+        ease: 'none',
+      });
     });
 
-    // Berries implode/explode
-    const berries = document.querySelectorAll('.berry');
-    let done = 0;
-    berries.forEach((berry: Element, i) => {
-      const el = berry as HTMLElement;
-      const bW = el.offsetWidth / 2, bH = el.offsetHeight / 2;
-      const cx = window.innerWidth / 2 - el.offsetLeft - bW;
-      const cy = window.innerHeight / 2 - el.offsetTop - bH;
-      const startA = berryData.current[i].angle;
-      const baseX = berryData.current[i].baseX;
-      const baseY = berryData.current[i].baseY;
-      const nextX = (Math.random() - 0.5) * 200;
-      const nextY = (Math.random() - 0.5) * 200;
+    return () => {
+      tl.kill();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, [flavor]);
 
-      gsap.set(el, { rotation: startA, x: baseX, y: baseY });
-      const tl = gsap.timeline();
-      tl.to(el, { x: cx, y: cy, rotation: startA + 45, scale: 0.1, opacity: 0, duration: 0.5, ease: 'power2.in',
-        onComplete: () => {
-          if (el.tagName === 'MODEL-VIEWER') (el as any).src = flavor === 'blue' ? ASSETS.blueberry : ASSETS.cherry;
-        }})
-        .to(el, { duration: 0.3 })
-        .to(el, { x: nextX, y: nextY, rotation: startA + 90, scale: 1, opacity: 1, duration: 0.9, ease: 'back.out(1.5)',
-          onComplete: () => {
-            berryData.current[i] = { angle: startA + 90, baseX: nextX, baseY: nextY, rx: 0, ry: 0 };
-            if (++done === berries.length) setIsSwitching(false);
-          }});
+  const switchFlavor = (newFlavor: 'classic' | 'blue') => {
+    if (newFlavor === flavor) return;
+    setFlavor(newFlavor);
+    document.body.className = flavors.find(f => f.id === newFlavor)?.bg || 'body';
+
+    gsap.to(canRef.current, {
+      rotationY: 720,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        gsap.set(canRef.current, { rotationY: 0 });
+      },
     });
   };
 
-  const onMouseMove = (e: React.MouseEvent) => {
-    setMouse({ x: e.clientX / window.innerWidth - 0.5, y: e.clientY / window.innerHeight - 0.5, px: e.clientX, py: e.clientY });
-  };
+  const currentFlavor = flavors.find(f => f.id === flavor)!;
 
   return (
-    <div className="fixed inset-0 z-0" onMouseMove={onMouseMove}>
-      {/* Bubbles */}
-      <div ref={bubblesContainer} id="bubbles-container" className="fixed inset-0 pointer-events-none overflow-hidden" />
-
-      {/* Header */}
-      <header className="fixed top-0 w-full z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className={currentFlavor.bg} style={{ minHeight: '100vh', overflow: 'hidden' }}>
+      <header className="fixed top-0 w-full z-50 bg-ambrosia-dark/95 backdrop-blur border-b border-white/10">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <svg className="w-8 h-8 text-soda-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8V16M8 12H16"/></svg>
-            <span className="font-heading text-xl font-bold">Soda</span>
+            <svg className="w-8 h-8 text-ambrosia-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8V16M8 12H16" />
+            </svg>
+            <span className="font-heading text-xl font-bold">Ambrosia</span>
           </div>
-          <nav className="flex items-center gap-2 glass px-2 rounded-full">
-            <a href="/" className="nav-item active">Home</a>
-            <a href="/soda-ai" className="nav-item">AI Formulate</a>
-            <a href="#" className="nav-item">Ingredients</a>
-            <a href="#" className="nav-item">Taste</a>
-            <a href="#" className="nav-item">Eco</a>
-            <a href="#" className="nav-item">Reviews</a>
-          </nav>
-          <button className="px-6 py-3 rounded-full bg-black/50 text-white font-semibold hover:bg-black/70 transition">Contact Us</button>
-        </div>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="nav-item font-manrope text-sm text-white/70 hover:text-white transition">Home</Link>
+            <Link href="/formulate" className="nav-item font-manrope text-sm bg-ambrosia-pink text-ambrosia-dark px-4 py-2 rounded-full font-medium">AI Formulate</Link>
+            <Link href="/shop" className="nav-item font-manrope text-sm text-white/70 hover:text-white transition">Shop</Link>
+            <Link href="/ingredients" className="nav-item font-manrope text-sm text-white/70 hover:text-white transition">Ingredients</Link>
+            <Link href="/contact" className="nav-item font-manrope text-sm text-white/70 hover:text-white transition">Contact</Link>
+          </div>
+        </nav>
       </header>
 
-      {/* Hero */}
-      <main className="h-screen flex items-center justify-center px-4 pt-20 relative">
-        <div className="w-full max-w-none h-full relative" style={{ perspective: '1000px' }}>
+      <main className="pt-16 min-h-screen relative">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {['cherry.glb', 'blueberry.glb'].map((berry, i) => (
+            <model-viewer
+              key={berry}
+              src={`https://getlayers.ai/models/${berry}`}
+              alt={`${berry} floating`}
+              className="berry"
+              style={{
+                width: '80px',
+                height: '80px',
+                top: `${gsap.utils.random(10, 80)}%`,
+                left: `${gsap.utils.random(5, 90)}%`,
+                animationDuration: `${gsap.utils.random(8, 15)}s`,
+              }}
+              auto-rotate
+              camera-controls
+              disable-pan
+              disable-zoom
+            />
+          ))}
+          {Array.from({ length: 3 }).map((_, i) => (
+            <model-viewer
+              key={`leaves-${i}`}
+              src="https://getlayers.ai/models/leaves.glb"
+              alt="Leaves floating"
+              className="leaf"
+              style={{
+                width: '120px',
+                height: '120px',
+                top: `${gsap.utils.random(20, 70)}%`,
+                left: `${gsap.utils.random(5, 90)}%`,
+                opacity: 0.3,
+              }}
+              auto-rotate
+              camera-controls
+              disable-pan
+              disable-zoom
+            />
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <img
+              key={`bubble-${i}`}
+              src="https://getlayers.ai/images/bubble.png"
+              alt="Bubble"
+              className="bubble-img"
+              style={{
+                width: `${gsap.utils.random(20, 60)}px`,
+                height: `${gsap.utils.random(20, 60)}px`,
+                top: `${gsap.utils.random(60, 100)}%`,
+                left: `${gsap.utils.random(5, 90)}%`,
+                opacity: gsap.utils.random(0.1, 0.4),
+              }}
+            />
+          ))}
+        </div>
 
-          {/* Leaves */}
-          <div ref={leavesContainer} className="absolute inset-0 pointer-events-none z-[-1] transition-transform duration-100">
-            {leafPositions.map(l => (
-              <model-viewer key={l.id} ref={el => leafRefs.current[parseInt(l.id.slice(1))-1] = el}
-                src={ASSETS.leaves} environment-image="neutral" exposure={1.0}
-                interaction-prompt="none" camera-orbit={l.orbit}
-                className="leaf absolute" style={{ top: l.top, left: l.left, width: l.w, height: l.h, opacity: l.op || 1 }} />
-            ))}
-          </div>
-
-          {/* Left Column */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 max-w-xs">
-            <h1 className="font-heading text-5xl md:text-7xl lg:text-9xl leading-[0.8] font-normal">
-              <span className="text-white">Pure</span><br/>Zero
-            </h1>
-            <p className="mt-6 text-white/70 text-lg leading-relaxed max-w-xs">
-              Unleash the crisp taste of zero sugar.<br/>
-              Refreshment redefined in every bubble —<br/>
-              all in one sleek design.
-            </p>
-            <div className="mt-8 flex flex-col gap-4">
-              <a href="/soda-ai" className="primary-btn group">
-                Shop Now
-                <span className="plus-icon group-hover:rotate-90 transition-transform">+</span>
-              </a>
-              <a href="/soda-ai" className="primary-btn bg-gradient-to-r from-soda-pink to-soda-teal text-soda-dark justify-center">
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                Formulate with AI
-              </a>
-            </div>
-            <div className="award-badge mt-auto">
-              <div className="award-icon"><svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15L15 18L19 14"/><path d="M7 10L12 15L17 10"/></svg></div>
-              <div><span className="text-xs text-white/50 tracking-wider">DESIGN AWARDS</span><br/><span className="font-semibold text-sm">PREMIUM BEVERAGE 2025</span></div>
-            </div>
-          </div>
-
-          {/* Background Berries */}
-          <div ref={berriesBG} className="absolute inset-0 pointer-events-none z-0 transition-transform duration-100">
-            {bgBerryPositions.map(b => (
-              <model-viewer key={b.id} src={ASSETS.cherry} environment-image="neutral" exposure={b.exp}
-                interaction-prompt="none" camera-orbit={b.orbit}
-                className="berry absolute" style={{ top: b.top, left: b.left, width: b.w, height: b.h, opacity: b.op }} />
-            ))}
-          </div>
-
-          {/* Center Can */}
-          <div className="absolute inset-0 flex items-center justify-center z-10 opacity-0 animate-fade-in animate-float" style={{ animationDelay: '0.3s' }}>
-            <div className="relative" style={{ width: '80vw', height: '80vh', maxWidth: '800px', maxHeight: '600px' }}>
-              <model-viewer ref={productModel} src={ASSETS.can} alt="Diet Soda 3D Model"
-                camera-controls disable-zoom shadow-intensity="0" environment-image="neutral" exposure={1.5}
-                interaction-prompt="none" camera-orbit="0deg 90deg 380%" field-of-view="30deg"
-                className="w-full h-full" style={{ transform: 'translate(-50%, -50%) rotate(25deg)', position: 'fixed', top: '50%', left: '50%', zIndex: 1, pointerEvents: 'auto' }} />
-            </div>
-          </div>
-
-          {/* Foreground Berries */}
-          <div ref={berriesFG} className="absolute inset-0 pointer-events-none z-20 transition-transform duration-100">
-            {berryPositions.map((b, i) => (
-              <model-viewer key={b.id} ref={el => berryRefs.current[i] = el}
-                src={ASSETS.cherry} environment-image="neutral" exposure={b.exp}
-                interaction-prompt="none" camera-orbit={b.orbit}
-                className="berry absolute" style={{ top: b.top, left: b.left, width: b.w, height: b.h }} />
-            ))}
-          </div>
-
-          {/* Right Column */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-[450px] flex flex-col justify-between items-end text-right">
-            <div className="flex flex-col gap-6 items-end pointer-events-auto">
-              <div className="flex gap-4">
-                <div className={`card ${theme === 'classic' ? 'active' : ''}`} onClick={() => handleSwitch('classic')}>
-                  <img src={ASSETS.greenSoda} alt="Diet Classic" />
-                  <div className="card-info"><span>Diet Classic</span><span>$2.99</span></div>
-                </div>
-                <div className={`card ${theme === 'blue' ? 'active' : ''}`} onClick={() => handleSwitch('blue')}>
-                  <img src={ASSETS.blueSoda} alt="Zero Lime" style={{ filter: 'brightness(0.7)' }} />
-                  <div className="card-info"><span>Zero Lime</span><span>$2.99</span></div>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button className="nav-arrow w-9 h-9 rounded-full glass flex items-center justify-center">←</button>
-                <button className="nav-arrow w-9 h-9 rounded-full glass flex items-center justify-center">→</button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="hero-left text-center lg:text-left">
+              <h1 className="main-title font-heading text-6xl sm:text-7xl lg:text-8xl font-bold leading-tight">
+                Pure <span className="text-ambrosia-pink">Zero</span> Refreshment
+              </h1>
+              <p className="side-title font-manrope text-lg sm:text-xl text-white/70 mt-6 max-w-md mx-auto lg:mx-0">
+                Crisp. Clean. Zero compromise. Experience the future of beverage formulation.
+              </p>
+              <p className="hero-desc font-manrope text-base text-white/50 mt-6 max-w-lg mx-auto lg:mx-0">
+                Ambrosia combines immersive 3D brand experience with Dr. Bev — your AI formulation partner for creating the next generation of functional beverages.
+              </p>
+              <div className="cta-group flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mt-10">
+                <Link
+                  href="/formulate"
+                  className="primary-btn group"
+                >
+                  <span>Start Formulating</span>
+                  <span className="plus-icon group-hover:rotate-90 transition-transform">+</span>
+                </Link>
+                <Link
+                  href="/shop"
+                  className="flex items-center gap-3 bg-white/5 text-white px-6 py-3 rounded-full font-medium cursor-pointer transition hover:bg-white/10 border border-white/10"
+                >
+                  Explore Flavors
+                </Link>
               </div>
             </div>
-            <h2 className="font-heading text-5xl md:text-7xl leading-[0.8] font-normal text-right">
-              <span className="text-white">Refreshingly</span><br/>Clean
-            </h2>
+
+            <div className="hero-right flex flex-col items-center gap-8 relative">
+              <div className="relative" style={{ width: '350px', height: '350px' }}>
+                <model-viewer
+                  src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/deit_soda2.glb"
+                  alt="Ambrosia Classic Can"
+                  className="w-full h-full"
+                  auto-rotate
+                  camera-controls
+                  disable-pan
+                  ar
+                  ar-modes="webxr scene-viewer quick-look"
+                  environment-image="neutral"
+                  exposure="1"
+                  shadow-intensity="1"
+                  shadow-softness="0.5"
+                  tone-mapping="aces"
+                  interaction-prompt="none"
+                  loading="lazy"
+                >
+                  <div slot="poster" className="absolute inset-0 flex items-center justify-center bg-ambrosia-dark">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-ambrosia-pink border-t-transparent" />
+                  </div>
+                </model-viewer>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 flex gap-2">
+                  {flavors.map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => switchFlavor(f.id as 'classic' | 'blue')}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        flavor === f.id
+                          ? `border-${f.color} bg-${f.color}`
+                          : 'border-white/30 hover:border-white/50'
+                      }`}
+                      aria-label={f.name}
+                      title={f.name}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flavor-carousel flex items-center gap-4">
+                <button
+                  onClick={() => switchFlavor('classic')}
+                  className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition text-white/70 hover:text-white"
+                  aria-label="Previous flavor"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <div className="flex gap-4">
+                  {flavors.map(f => (
+                    <div
+                      key={f.id}
+                      className={`card ${flavor === f.id ? 'active' : ''}`}
+                      onClick={() => switchFlavor(f.id as 'classic' | 'blue')}
+                    >
+                      <img
+                        src={`https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/${f.id === 'classic' ? 'Green%20Soda.png' : 'Blue%20Soda.png'}`}
+                        alt={f.name}
+                      />
+                      <div className="card-info">
+                        <span className="font-heading">{f.name}</span>
+                        <span className="font-manrope">Zero Sugar</span>
+                      </div>
+                      <div className="award-badge">
+                        <div className="award-icon">
+                          <svg className="w-6 h-6 text-ambrosia-pink" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                        </div>
+                        <span className="font-manrope text-xs text-white/70">Best in Class</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => switchFlavor('blue')}
+                  className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition text-white/70 hover:text-white"
+                  aria-label="Next flavor"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+            </div>
           </div>
+
+          <section className="mt-24 grid md:grid-cols-3 gap-8">
+            {[
+              { icon: '🧪', title: 'AI Formulation', desc: 'Dr. Bev creates custom recipes with nutrition, cost & regulatory analysis', href: '/formulate' },
+              { icon: '🔬', title: 'Ingredient Science', desc: 'Search 500+ ingredients with flavor profiles, compatibility & compliance data', href: '/ingredients' },
+              { icon: '🌱', title: 'Sustainable Sourcing', desc: 'Trace ingredients from supplier to shelf with carbon & water footprints', href: '/eco' },
+            ].map((feature, i) => (
+              <Link key={i} href={feature.href} className="glass rounded-2xl p-6 hover:border-ambrosia-pink/50 transition-all group">
+                <span className="text-4xl mb-4 block">{feature.icon}</span>
+                <h3 className="font-heading text-xl font-bold mb-2 group-hover:text-ambrosia-pink transition">{feature.title}</h3>
+                <p className="font-manrope text-white/60">{feature.desc}</p>
+              </Link>
+            ))}
+          </section>
         </div>
       </main>
+
+      <footer className="border-t border-white/10 py-12 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <svg className="w-6 h-6 text-ambrosia-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" /><path d="M12 8V16M8 12H16" />
+            </svg>
+            <span className="font-heading text-lg font-bold">Ambrosia</span>
+          </div>
+          <p className="font-manrope text-sm text-white/50">© 2024 Ambrosia. Crafted for food-tech founders.</p>
+          <div className="flex gap-6">
+            <Link href="/contact" className="font-manrope text-sm text-white/50 hover:text-white transition">Contact</Link>
+            <Link href="/taste" className="font-manrope text-sm text-white/50 hover:text-white transition">Taste Profiles</Link>
+            <Link href="/reviews" className="font-manrope text-sm text-white/50 hover:text-white transition">Reviews</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

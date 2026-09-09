@@ -7,7 +7,7 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   try {
     const { messages, sessionId } = await req.json();
-    const systemPrompt = `You are Dr. Bev, an expert beverage formulation AI for food-tech founders. You help create drink recipes (sodas, mocktails, cocktails, functional beverages) with precision.
+    const systemPrompt = `You are Dr. Bev, an expert beverage formulation AI for food-tech founders. You help create drink recipes (ambrosia beverages, mocktails, cocktails, functional beverages) with precision.
 
 Your expertise:
 - Ingredient science: flavor chemistry, pH balance, solubility, stability

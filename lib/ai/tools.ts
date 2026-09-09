@@ -62,7 +62,7 @@ export const calculateNutritionTool = tool({
       abv += (ing.abv || 0) * (m! / (vol || 1));
       if (ing.costPerLiterUsd) cost += ing.costPerLiterUsd * (m! / 1000);
       else if (ing.costPerKgUsd) cost += ing.costPerKgUsd * (g! / 1000);
-      ing.allergens?.forEach(a => allAllergens.add(a)); ing.dietaryTags?.forEach(d => allDietary.add(d));
+      ing.allergens?.forEach((a: string) => allAllergens.add(a)); ing.dietaryTags?.forEach((d: string) => allDietary.add(d));
       if (ing.novelFoodStatus === 'novel_food') novel.push(ing.id);
       const st = ing.regulatoryStatus as Record<string,string>;
       for (const [jur, stt] of Object.entries(st)) if (stt === 'restricted' || stt === 'banned' || stt === 'pending') warns.push(`${jur.toUpperCase()}: ${ing.name} is ${stt}`);
@@ -135,7 +135,7 @@ export const checkRegulatoryComplianceTool = tool({
 
 export const generateRecipeTool = tool({
   description: 'Generate a complete recipe from a natural language brief',
-  parameters: z.object({ brief: z.string(), constraints: z.object({ targetAbv: z.number().optional(), maxSugarGPer100ml: z.number().optional(), maxCaloriesPer100ml: z.number().optional(), dietaryTags: z.array(z.string()).optional(), allergensToAvoid: z.array(z.string()).optional(), category: z.enum(['cocktail','mocktail','soda','functional','shot','smoothie']).optional(), servingSizeMl: z.number().default(250), budgetPerServingUsd: z.number().optional() }).optional() }),
+  parameters: z.object({ brief: z.string(), constraints: z.object({ targetAbv: z.number().optional(), maxSugarGPer100ml: z.number().optional(), maxCaloriesPer100ml: z.number().optional(), dietaryTags: z.array(z.string()).optional(), allergensToAvoid: z.array(z.string()).optional(), category: z.enum(['cocktail','mocktail','ambrosia','functional','shot','smoothie']).optional(), servingSizeMl: z.number().default(250), budgetPerServingUsd: z.number().optional() }).optional() }),
   execute: async ({ brief, constraints }) => ({ brief, constraints, suggestedSteps: [ {action:'search_base',params:{category:'base',...constraints}}, {action:'search_flavors',params:{category:'flavor',flavorTags:['citrus','tropical'],...constraints}}, {action:'search_sweetener',params:{category:'sweetener',maxSugarGPer100ml:constraints?.maxSugarGPer100ml}}, {action:'search_acid',params:{category:'acid'}} ], note: 'Use search tools to find ingredients, then calculateNutrition and checkCompatibility' }),
 });
 

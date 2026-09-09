@@ -5,7 +5,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope', display: 'swap', weight: ['400','500','700'] });
 const galada = Galada({ subsets: ['latin'], variable: '--font-galada', display: 'swap', weight: ['400'] });
 
-export const metadata: Metadata = { title: 'Diet Soda | Pure Zero Refreshment', description: 'Experience the crisp, clean taste of Diet Soda. Zero sugar, zero compromise.' };
+export const metadata: Metadata = { title: 'Ambrosia | Pure Zero Refreshment', description: 'Experience the crisp, clean taste of Ambrosia. Zero sugar, zero compromise.' };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

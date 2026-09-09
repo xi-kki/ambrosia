@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diet Soda | Pure Zero Refreshment</title>
-    <meta name="description" content="Experience the crisp, clean taste of Diet Soda. Zero sugar, zero compromise.">
+    <title>Ambrosia | Pure Zero Refreshment</title>
+    <meta name="description" content="Experience the crisp, clean taste of Ambrosia. Zero sugar, zero compromise.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@400;500&family=Manrope:wght@400;700&family=Galada&display=swap" rel="stylesheet">
@@ -20,6 +20,8 @@
             --glass-border: rgba(255, 255, 255, 0.1);
             --font-main: 'Inter', sans-serif;
             --font-heading: 'Galada', cursive;
+
+            /* Dynamic Background Variables */
             --bg-inner: #0b8a78;
             --bg-mid: #044e3b;
             --bg-outer: #011411;
@@ -503,11 +505,10 @@
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
                 <path d="M12 8V16M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             </svg>
-            <span>Soda</span>
+            <span>Ambrosia</span>
         </div>
         <nav class="nav glass">
             <a href="#" class="nav-item active">Home</a>
-            <a href="/soda-ai" class="nav-item">AI Formulate</a>
             <a href="#" class="nav-item">Ingredients</a>
             <a href="#" class="nav-item">Taste</a>
             <a href="#" class="nav-item">Eco</a>
@@ -540,12 +541,6 @@
                         Shop Now
                         <span class="plus-icon">+</span>
                     </button>
-                    <a href="/soda-ai" class="primary-btn" style="background: linear-gradient(135deg, #fbcfe8 0%, #0b8a78 100%); margin-top: 1rem;">
-                        <span style="display: flex; align-items: center; gap: 0.5rem;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                            Formulate with AI
-                        </span>
-                    </a>
                 </div>
                 <div class="award-badge">
                     <div class="award-icon">
@@ -568,11 +563,7 @@
             </div>
 
             <div class="hero-center">
-                <model-viewer id="product-model" src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/deit_soda2.glb" alt="Diet Soda 3D Model" camera-controls
-                    disable-zoom shadow-intensity="0" environment-image="neutral" exposure="1.5"
-                    interaction-prompt="none" camera-orbit="0deg 90deg 380%" field-of-view="30deg"
-                    class="main-product-3d">
-                </model-viewer>
+                <model-viewer id="product-model" src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/deit_soda2.glb" alt="Ambrosia 3D Model" camera-controls disable-zoom shadow-intensity="0" environment-image="neutral" exposure="1.5" interaction-prompt="none" camera-orbit="0deg 90deg 380%" field-of-view="30deg" class="main-product-3d"></model-viewer>
             </div>
 
             <div class="berries-container">
@@ -588,14 +579,14 @@
                 <div class="product-carousel">
                     <div class="carousel-cards">
                         <div class="card active" data-flavor="classic">
-                            <img src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Green%20Soda.png" alt="Diet Classic">
+                            <img src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Green%20Soda.png" alt="Ambrosia Classic">
                             <div class="card-info">
-                                <span>Diet Classic</span>
+                                <span>Ambrosia Classic</span>
                                 <span>$2.99</span>
                             </div>
                         </div>
                         <div class="card" data-flavor="blue">
-                            <img src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Blue%20Soda.png" alt="Zero Lime" style="filter: brightness(0.7);">
+                            <img src="https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/Blue%20Soda.png" alt="Ambrosia Zero Lime" style="filter: brightness(0.7);">
                             <div class="card-info">
                                 <span>Zero Lime</span>
                                 <span>$2.99</span>
@@ -638,20 +629,22 @@
         let blueTexture = null;
         let greenTexture = null;
 
-        // Preload textures & Warm up shaders
+        const CHERRY_GLB = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/cherry.glb';
+        const BLUEBERRY_GLB = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/blueberry.glb';
+        const GREEN_BASE_COLOR_JPG = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/green%20base%20color.jpg';
+        const BLUE_BASE_COLOR_JPG = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/blue%20base%20color.jpg';
+        const BUBBLE_PNG = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/bubble.png';
+
         modelViewer.addEventListener('load', async () => {
             try {
-                blueTexture = await modelViewer.createTexture('https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/blue%20base%20color.jpg');
-                greenTexture  = await modelViewer.createTexture('https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/green%20base%20color.jpg');
+                blueTexture = await modelViewer.createTexture(BLUE_BASE_COLOR_JPG);
+                greenTexture  = await modelViewer.createTexture(GREEN_BASE_COLOR_JPG);
 
-                // Shader Warm-up: Briefly apply textures to compile shaders
                 if (modelViewer.model) {
                     const material = modelViewer.model.materials[0];
                     if (material && material.pbrMetallicRoughness.baseColorTexture) {
-                        // Apply blue
                         material.pbrMetallicRoughness.baseColorTexture.setTexture(blueTexture);
                         await new Promise(r => requestAnimationFrame(r));
-                        // Apply green back
                         material.pbrMetallicRoughness.baseColorTexture.setTexture(greenTexture);
                     }
                 }
@@ -675,7 +668,6 @@
             const berries = document.querySelectorAll('.berry');
             const heroCenter = document.querySelector('.hero-center');
 
-            // 1. Background Animation
             const targetColors = flavor === 'blue' ?
                 { inner: '#0b4f8a', mid: '#04294e', outer: '#010c14' } :
                 { inner: '#0b8a78', mid: '#044e3b', outer: '#011411' };
@@ -688,7 +680,6 @@
                 ease: 'power2.inOut'
             });
 
-            // 2. Can Spin Animation (Simple 360 spin + blur with back settle)
             const spinObj = { val: 0, blur: 0 };
             gsap.to(spinObj, {
                 val: 360,
@@ -700,7 +691,6 @@
                     modelViewer.style.filter = `blur(${spinObj.blur}px)`;
                 },
                 onComplete: async () => {
-                     // SWAP at peak
                     if (flavor === 'blue') {
                         body.classList.add('blue-theme');
                         if (modelViewer.model && blueTexture) {
@@ -724,7 +714,7 @@
                     gsap.to(spinObj, {
                         val: 720,
                         blur: 0,
-                         duration: 1.5,
+                        duration: 1.5,
                         ease: "back.out(0.7)",
                         onUpdate: () => {
                             switchSpin = spinObj.val;
@@ -738,7 +728,6 @@
                 }
             });
 
-            // 3. Berries "Hide & Reveal" with Dynamic Positioning
             let completedBerries = 0;
             berries.forEach((berry, i) => {
                 const bW = berry.offsetWidth / 2;
@@ -750,7 +739,6 @@
                 const currentBaseX = parseFloat(berry.dataset.baseX) || 0;
                 const currentBaseY = parseFloat(berry.dataset.baseY) || 0;
 
-                // New random target position - Increase d range for visibility
                 const nextBaseX = (Math.random() - 0.5) * 200;
                 const nextBaseY = (Math.random() - 0.5) * 200;
 
@@ -771,7 +759,7 @@
                     duration: 0.5,
                     ease: "power2.in",
                     onComplete: () => {
-                        berry.src = flavor === 'blue' ? 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/blueberry.glb' : 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/cherry.glb';
+                        berry.src = flavor === 'blue' ? BLUEBERRY_GLB : CHERRY_GLB;
                         heroCenter.style.zIndex = 50;
                     }
                 })
@@ -787,7 +775,7 @@
                     rotation: startAngle + 90,
                     scale: 1,
                     opacity: 1,
-                     duration: 0.9,
+                    duration: 0.9,
                     ease: "back.out(1.5)",
                     onComplete: () => {
                         berry.dataset.angle = startAngle + 90;
@@ -805,8 +793,6 @@
             });
         }
 
-
-        // Track berry states for smoothing
         allBerries.forEach(b => {
             b.dataset.rx = 0; b.dataset.ry = 0; b.dataset.angle = Math.random() * 360;
             b.dataset.baseX = 0; b.dataset.baseY = 0;
@@ -825,24 +811,19 @@
 
         function animate() {
             const time = Date.now() * 0.001;
-            // Target camera position based on mouse
-            // Smoothly interpolate current mouse to target mouse
             currentMouse.x += (mouse.x - currentMouse.x) * 0.05;
             currentMouse.y += (mouse.y - currentMouse.y) * 0.05;
 
-            // Tilt the product can + add switch spin
             modelViewer.cameraOrbit = `${(currentMouse.x * 40) + switchSpin}deg ${90 + (currentMouse.y * 20)}deg 380%`;
 
-            // Update parallax containers - Always
             berriesFG.style.transform = `translate(${currentMouse.x * 60}px, ${currentMouse.y * 60}px)`;
             berriesBG.style.transform = `translate(${currentMouse.x * -30}px, ${currentMouse.y * -30}px)`;
             leavesBG.style.transform = `translate(${currentMouse.x * -15}px, ${currentMouse.y * -15}px)`;
 
-            // Update each berry with its own smoothing and float - ONLY IF NOT SWITCHING
             if (!isSwitching) {
                 allBerries.forEach((berry, i) => {
                     const berryRect = berry.getBoundingClientRect();
-                    const berryX =  berryRect.left + berryRect.width / 2;
+                    const berryX = berryRect.left + berryRect.width / 2;
                     const berryY = berryRect.top + berryRect.height / 2;
 
                     const diffX = mouse.px - berryX;
@@ -858,7 +839,6 @@
                         speedMult = 1 + force * 5;
                     }
 
-                    // Lerp repulsion values
                     let rx = parseFloat(berry.dataset.rx) || 0;
                     let ry = parseFloat(berry.dataset.ry) || 0;
                     let angle = parseFloat(berry.dataset.angle) || 0;
@@ -867,13 +847,12 @@
 
                     rx += (targetRx - rx) * 0.1;
                     ry += (targetRy - ry) * 0.1;
-                     angle += 0.2 * speedMult;
+                    angle += 0.2 * speedMult;
 
                     berry.dataset.rx = rx;
                     berry.dataset.ry = ry;
                     berry.dataset.angle = angle;
 
-                    // Floating effect
                     const dur = [5, 7, 6, 8, 5.5, 6.5, 9, 11, 10][i % 9];
                     const phase = (time + i * 0.7) * (Math.PI * 2 / dur);
                     const floatY = Math.sin(phase) * 15;
@@ -883,7 +862,6 @@
                 });
             }
 
-            // Update leaves with float - ALWAYS
             document.querySelectorAll('.leaf').forEach((leaf, i) => {
                 const dur = 10 + i * 2;
                 const phase = (time + i * 1.2) * (Math.PI * 2 / dur);
@@ -891,19 +869,18 @@
                 const floatX = Math.cos(phase * 0.5) * 15;
                 const floatAngle = Math.sin(phase * 0.3) * 15;
                 leaf.style.transform = `translate(${floatX}px, ${floatY}px) rotate(${floatAngle}deg)`;
-             });
+            });
 
             requestAnimationFrame(animate);
         }
 
         animate();
 
-        // Bubbles Generator using bubble.png
         const bubblesContainer = document.getElementById('bubbles-container');
         function createBubble() {
             if (!bubblesContainer) return;
             const bubble = document.createElement('img');
-            bubble.src = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/bubble.png';
+            bubble.src = BUBBLE_PNG;
             bubble.className = 'bubble-img';
             const size = Math.random() * 20 + 10 + 'px';
             bubble.style.width = size;

@@ -51,14 +51,14 @@ body {
 .glass { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.1); }
 
 .nav-item { @apply font-manrope text-sm text-white/70 px-4 py-2 rounded-full transition; }
-.nav-item:hover, .nav-item.active { @apply bg-soda-pink text-soda-dark; }
+.nav-item:hover, .nav-item.active { @apply bg-ambrosia-pink text-ambrosia-dark; }
 
 .primary-btn { @apply flex items-center gap-3 bg-black/50 text-white px-6 py-3 rounded-full font-bold cursor-pointer transition hover:bg-black/70 hover:-translate-y-1; }
-.plus-icon { @apply bg-soda-pink text-soda-dark w-10 h-10 flex items-center justify-center rounded-full text-xl font-black; }
+.plus-icon { @apply bg-ambrosia-pink text-ambrosia-dark w-10 h-10 flex items-center justify-center rounded-full text-xl font-black; }
 
 .card { @apply bg-white/5 border border-white/10 p-4 pt-20 rounded-[28px] flex flex-col items-center gap-6 cursor-pointer transition-all duration-300 w-[135px] relative backdrop-blur-sm; }
 .card:hover { @apply bg-white/10 border-white/40; }
-.card.active { @apply border-soda-pink; }
+.card.active { @apply border-ambrosia-pink; }
 .card img { @apply w-[140px] -mt-20 drop-shadow-[0_20px_35px_rgba(0,0,0,0.5)] transition-transform duration-500 ease-out pointer-events-none; }
 .card:hover img { @apply -translate-y-8 -rotate-3 scale-115; }
 .card-info { @apply flex flex-col text-xs w-full; }
