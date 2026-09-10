@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { Inter, Manrope, Galada } from 'next/font/google';
 import './globals.css';
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope', display: 'swap', weight: ['400','500','700'] });
@@ -18,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" />
       </head>
       <body className={`${inter.className} ${manrope.className} ${galada.className} font-sans antialiased`}>
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );
