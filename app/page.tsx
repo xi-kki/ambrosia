@@ -438,8 +438,8 @@ export default function LandingPage() {
               lineHeight: 0.8, fontWeight: 400, textTransform: 'none',
               whiteSpace: 'nowrap', color: 'white', letterSpacing: 'normal'
             }}>
-              <span className="outline">Pure</span><br />
-              Zero
+              <span className="outline">Create</span><br />
+              Healthy drinks
             </h1>
             <p className="description" style={{
               color: 'var(--muted-color)', fontSize: '1.1rem', lineHeight: 1.6, maxWidth: '400px'
@@ -566,41 +566,60 @@ export default function LandingPage() {
               display: 'flex', flexDirection: 'column', gap: '1.5rem',
               alignItems: 'flex-end', pointerEvents: 'auto'
             }}>
-              <div className="carousel-cards" style={{ display: 'flex', gap: '1rem' }}>
+              <div className="carousel-cards" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                 {flavors.map(f => (
-                  <div
-                    key={f.id}
-                    className={`card ${flavor === f.id ? 'active' : ''}`}
-                    onClick={() => switchFlavor(f.id as 'classic' | 'blue')}
-                    style={{
-                      background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
-                      padding: '1rem', paddingTop: '5rem', borderRadius: '28px',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center',
-                      gap: '1.5rem', cursor: 'pointer',
-                      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                      width: '135px', position: 'relative',
-                      backdropFilter: 'blur(10px)', textAlign: 'center',
-                      borderColor: flavor === f.id ? '#fbcfe8' : 'var(--glass-border)',
-                      boxShadow: flavor === f.id ? 'none' : undefined,
-                    }}
-                  >
-                    <img
-                      src={`https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/${f.id === 'classic' ? 'Green%20Soda.png' : 'Blue%20Soda.png'}`}
-                      alt={f.name === 'Classic' ? 'Ambrosia Classic' : 'Ambrosia Zero Lime'}
+                  <div key={f.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                    <div
+                      className={`card ${flavor === f.id ? 'active' : ''}`}
+                      onClick={() => switchFlavor(f.id as 'classic' | 'blue')}
                       style={{
-                        width: '140px', height: 'auto', marginTop: '-8rem',
-                        filter: `drop-shadow(0 20px 35px rgba(0,0,0,0.5)) ${f.id === 'blue' ? 'brightness(0.7)' : ''}`,
-                        transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        display: 'block', willChange: 'transform', pointerEvents: 'none',
+                        background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
+                        padding: '1rem', paddingTop: '5rem', borderRadius: '28px',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center',
+                        gap: '1.5rem', cursor: 'pointer',
+                        transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                        width: '135px', position: 'relative',
+                        backdropFilter: 'blur(10px)', textAlign: 'center',
+                        borderColor: flavor === f.id ? '#fbcfe8' : 'var(--glass-border)',
+                        boxShadow: flavor === f.id ? 'none' : undefined,
                       }}
-                    />
-                    <div className="card-info" style={{
-                      display: 'flex', flexDirection: 'column', fontSize: '0.7rem',
-                      width: '100%', wordWrap: 'break-word'
-                    }}>
-                      <span style={{ fontWeight: 600 }}>{f.name === 'Classic' ? 'Ambrosia Classic' : 'Zero Lime'}</span>
-                      <span style={{ color: 'var(--muted-color)' }}>$2.99</span>
+                    >
+                      <img
+                        src={`https://api.getlayers.ai/storage/v1/object/public/public/assets/soda-14ff8a788d/${f.id === 'classic' ? 'Green%20Soda.png' : 'Blue%20Soda.png'}`}
+                        alt={f.name === 'Classic' ? 'Ambrosia Classic' : 'Ambrosia Zero Lime'}
+                        style={{
+                          width: '140px', height: 'auto', marginTop: '-8rem',
+                          filter: `drop-shadow(0 20px 35px rgba(0,0,0,0.5)) ${f.id === 'blue' ? 'brightness(0.7)' : ''}`,
+                          transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                          display: 'block', willChange: 'transform', pointerEvents: 'none',
+                        }}
+                      />
+                      <div className="card-info" style={{
+                        display: 'flex', flexDirection: 'column', fontSize: '0.7rem',
+                        width: '100%', wordWrap: 'break-word'
+                      }}>
+                        <span style={{ fontWeight: 600 }}>{f.name === 'Classic' ? 'Ambrosia Classic' : 'Zero Lime'}</span>
+                        <span style={{ color: 'var(--muted-color)' }}>$2.99</span>
+                      </div>
                     </div>
+                    {f.id === 'classic' && (
+                      <Link href="/formulate" style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        background: '#fbcfe8', color: '#011411', border: 'none',
+                        padding: '0.35rem 0.35rem 0.35rem 1rem', borderRadius: '100px',
+                        fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer',
+                        textDecoration: 'none', whiteSpace: 'nowrap',
+                        boxShadow: '0 8px 20px rgba(251,207,232,0.3)',
+                        marginRight: '-1.2rem'
+                      }}>
+                        Meet Bevis
+                        <span style={{
+                          background: '#011411', color: 'white', width: '28px', height: '28px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          borderRadius: '50%', fontSize: '1rem', fontWeight: 900, lineHeight: 1
+                        }}>+</span>
+                      </Link>
+                    )}
                   </div>
                 ))}
               </div>
@@ -619,15 +638,6 @@ export default function LandingPage() {
                 }}>→</button>
               </div>
             </div>
-            <h2 className="side-title large-animation-1" style={{
-              alignSelf: 'flex-end', textAlign: 'right',
-              fontFamily: 'var(--font-heading)', fontSize: 'clamp(5rem, 10vw, 12rem)',
-              lineHeight: 0.8, fontWeight: 400, textTransform: 'none',
-              whiteSpace: 'nowrap', color: 'white', letterSpacing: 'normal'
-            }}>
-              <span className="outline">Refreshingly</span><br />
-              Clean
-            </h2>
           </div>
         </div>
       </main>
