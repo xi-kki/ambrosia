@@ -206,6 +206,29 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // GSAP cleanup on unmount
+  useEffect(() => {
+    return () => {
+      gsap.killTweensOf('*');
+      gsap.globalTimeline.clear();
+    };
+  }, []);
+
+  // Respect reduced motion
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleChange = () => {
+      if (mediaQuery.matches) {
+        gsap.globalTimeline.timeScale(0);
+      } else {
+        gsap.globalTimeline.timeScale(1);
+      }
+    };
+    handleChange();
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   // Flavor switch handler
   const switchFlavor = async (newFlavor: 'classic' | 'blue') => {
     if (isSwitchingRef.current) return;
@@ -351,7 +374,7 @@ export default function LandingPage() {
   const currentFlavor = flavors.find(f => f.id === flavor)!;
 
   return (
-    <div className={currentFlavor.bg} style={{ minHeight: '100vh', overflow: 'hidden' }}>
+    <div className={currentFlavor.bg} style={{ minHeight: '100dvh', overflow: 'hidden' }}>
       {/* Bubbles container */}
       <div id="bubbles-container" style={{
         position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -376,7 +399,7 @@ export default function LandingPage() {
         <nav className="nav glass" style={{
           display: 'flex', gap: '0.5rem',
           background: 'rgba(255,255,255,0.08)', padding: '0.4rem',
-          borderRadius: '100px', border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: 'var(--radius-pill)', border: '1px solid rgba(255,255,255,0.2)',
           boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.1)',
           backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)'
         }}>
@@ -384,16 +407,17 @@ export default function LandingPage() {
             <Link key={i} href={`/${item.toLowerCase() === 'home' ? '' : item.toLowerCase()}`} className="nav-item" style={{
               fontFamily: "'Manrope', sans-serif", color: 'var(--muted-color)',
               textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500,
-              padding: '0.5rem 1.2rem', borderRadius: '100px', transition: 'all 0.3s ease'
+              padding: '0.5rem 1.2rem', borderRadius: 'var(--radius-pill)', transition: 'all 0.3s ease'
             }}>
               {item}
             </Link>
           ))}
         </nav>
         <button className="contact-btn" style={{
-          background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none',
-          padding: '0.9rem 2rem', borderRadius: '100px', fontWeight: 600,
-          fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.3s ease'
+          background: 'var(--glass-bg)', color: 'white', border: '1px solid var(--glass-border)',
+          padding: '0.9rem 2rem', borderRadius: 'var(--radius-pill)', fontWeight: 600,
+          fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.3s ease',
+          backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)'
         }}>Contact Us</button>
       </header>
 
@@ -434,8 +458,8 @@ export default function LandingPage() {
             padding: '6rem 0', gap: '2rem', zIndex: 100
           }}>
             <h1 className="main-title large-animation-1" style={{
-              fontFamily: 'var(--font-heading)', fontSize: 'clamp(5rem, 10vw, 12rem)',
-              lineHeight: 0.8, fontWeight: 400, textTransform: 'none',
+              fontFamily: 'var(--font-heading)', fontSize: 'clamp(3.5rem, 8vw, 7rem)',
+              lineHeight: 0.9, fontWeight: 400, textTransform: 'none',
               whiteSpace: 'nowrap', color: 'white', letterSpacing: 'normal'
             }}>
               <span className="outline">Create</span><br />
@@ -451,14 +475,15 @@ export default function LandingPage() {
             <div className="cta-group">
               <Link href="/formulate" className="primary-btn" style={{
                 display: 'flex', alignItems: 'center', gap: '1.5rem',
-                background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none',
-                padding: '0.4rem 0.4rem 0.4rem 1.5rem', borderRadius: '100px',
+                background: 'var(--ambrosia-pink)', color: 'var(--ambrosia-dark)', border: 'none',
+                padding: '0.4rem 0.4rem 0.4rem 1.5rem', borderRadius: 'var(--radius-pill)',
                 fontWeight: 700, cursor: 'pointer', width: 'fit-content',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                boxShadow: '0 8px 20px rgba(251,207,232,0.3)'
               }}>
-                Shop Now
+                Meet Bevis
                 <span className="plus-icon" style={{
-                  background: '#fbcfe8', color: '#011d17', width: '38px', height: '38px',
+                  background: 'var(--ambrosia-dark)', color: 'var(--ambrosia-pink)', width: '38px', height: '38px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   borderRadius: '50%', fontSize: '1.4rem', fontWeight: 900,
                   lineHeight: 1, paddingBottom: '2px', border: 'none'
@@ -470,7 +495,7 @@ export default function LandingPage() {
             }}>
               <div className="award-icon" style={{
                 width: '48px', height: '48px', background: 'var(--glass-bg)',
-                border: '1px solid var(--glass-border)', borderRadius: '12px',
+                border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -574,13 +599,13 @@ export default function LandingPage() {
                       onClick={() => switchFlavor(f.id as 'classic' | 'blue')}
                       style={{
                         background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
-                        padding: '1rem', paddingTop: '5rem', borderRadius: '28px',
+                        padding: '1rem', paddingTop: '5rem', borderRadius: 'var(--radius-card)',
                         display: 'flex', flexDirection: 'column', alignItems: 'center',
                         gap: '1.5rem', cursor: 'pointer',
                         transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                         width: '135px', position: 'relative',
                         backdropFilter: 'blur(10px)', textAlign: 'center',
-                        borderColor: flavor === f.id ? '#fbcfe8' : 'var(--glass-border)',
+                        borderColor: flavor === f.id ? 'var(--ambrosia-pink)' : 'var(--glass-border)',
                         boxShadow: flavor === f.id ? 'none' : undefined,
                       }}
                     >
@@ -603,39 +628,41 @@ export default function LandingPage() {
                       </div>
                     </div>
                     {f.id === 'classic' && (
-                      <Link href="/formulate" style={{
+                      <Link href="/shop" style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        background: '#fbcfe8', color: '#011411', border: 'none',
-                        padding: '0.35rem 0.35rem 0.35rem 1rem', borderRadius: '100px',
+                        background: 'var(--ambrosia-pink)', color: 'var(--ambrosia-dark)', border: 'none',
+                        padding: '0.35rem 0.35rem 0.35rem 1rem', borderRadius: 'var(--radius-pill)',
                         fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer',
                         textDecoration: 'none', whiteSpace: 'nowrap',
                         boxShadow: '0 8px 20px rgba(251,207,232,0.3)',
                         marginRight: '-1.2rem'
                       }}>
-                        Meet Bevis
+                        Shop Now
                         <span style={{
-                          background: '#011411', color: 'white', width: '28px', height: '28px',
+                          background: 'var(--ambrosia-dark)', color: 'white', width: '28px', height: '28px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           borderRadius: '50%', fontSize: '1rem', fontWeight: 900, lineHeight: 1
                         }}>+</span>
                       </Link>
                     )}
+                    {f.id === 'blue' && (
+                      <div className="carousel-nav" style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                        <button className="nav-arrow" style={{
+                          background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
+                          color: 'white', width: '32px', height: '32px', borderRadius: '50%',
+                          cursor: 'pointer', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', transition: 'background 0.3s', fontSize: '0.9rem'
+                        }}>←</button>
+                        <button className="nav-arrow" style={{
+                          background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
+                          color: 'white', width: '32px', height: '32px', borderRadius: '50%',
+                          cursor: 'pointer', display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', transition: 'background 0.3s', fontSize: '0.9rem'
+                        }}>→</button>
+                      </div>
+                    )}
                   </div>
                 ))}
-              </div>
-              <div className="carousel-nav" style={{ display: 'flex', gap: '1rem' }}>
-                <button className="nav-arrow" style={{
-                  background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
-                  color: 'white', width: '36px', height: '36px', borderRadius: '50%',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', transition: 'background 0.3s'
-                }}>←</button>
-                <button className="nav-arrow" style={{
-                  background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
-                  color: 'white', width: '36px', height: '36px', borderRadius: '50%',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', transition: 'background 0.3s'
-                }}>→</button>
               </div>
             </div>
           </div>
@@ -665,13 +692,13 @@ export default function LandingPage() {
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         @keyframes shine { from { transform: translateX(-100%) rotate(45deg); } to { transform: translateX(200%) rotate(45deg); } }
 
-        .nav-item:hover, .nav-item.active { background: #fbcfe8; color: #011d17; }
+        .nav-item:hover, .nav-item.active { background: var(--ambrosia-pink); color: var(--ambrosia-dark); }
         .contact-btn:hover { background: rgba(0,0,0,0.7); transform: translateY(-2px); }
         .primary-btn:hover { background: rgba(0,0,0,0.7); transform: translateY(-3px); }
         .nav-arrow:hover { background: rgba(255,255,255,0.1); }
         .card:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.4); }
         .card:hover img { transform: translateY(-30px) rotate(-12deg) scale(1.15) !important; }
-        .card.active { border-color: #fbcfe8; background: var(--glass-bg); box-shadow: none; }
+        .card.active { border-color: var(--ambrosia-pink); background: var(--glass-bg); box-shadow: none; }
         .berry.no-animation { animation: none !important; }
 
         @media (max-width: 1200px) {
@@ -681,6 +708,34 @@ export default function LandingPage() {
           .main-title, .side-title { font-size: 5rem; }
           .hero-right { align-items: center; text-align: center; }
           .side-title { align-self: center; text-align: center; }
+        }
+
+        @media (max-width: 768px) {
+          .main-title { font-size: clamp(2.5rem, 12vw, 4rem); }
+          .description { font-size: 1rem; max-width: 100%; }
+          .hero { padding: 0 1.5rem; padding-top: 4rem; }
+          .hero-left { padding: 3rem 0; gap: 1.5rem; }
+          .cta-group .primary-btn { padding: 0.5rem 0.5rem 0.5rem 1.5rem; gap: 1rem; }
+          .cta-group .plus-icon { width: 32px; height: 32px; font-size: 1.2rem; }
+          .nav { padding: 0.3rem; gap: 0.25rem; }
+          .nav-item { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+          .contact-btn { padding: 0.7rem 1.5rem; font-size: 0.8rem; }
+          .carousel-cards { gap: 0.5rem; }
+          .card { width: 110px; padding: 0.75rem; padding-top: 4rem; border-radius: 20px; }
+          .card img { width: 110px; margin-top: -6rem; }
+          .carousel-nav button { width: 28px; height: 28px; font-size: 0.8rem; }
+          .award-badge { gap: 0.5rem; }
+          .award-icon { width: 40px; height: 40px; }
+          .berry { width: 80px !important; height: 80px !important; }
+          .leaf { width: 40px !important; height: 40px !important; }
+        }
+
+        @media (max-width: 480px) {
+          .main-title { font-size: clamp(2rem, 14vw, 3rem); }
+          .hero { padding-top: 3.5rem; }
+          .nav { display: none; }
+          .contact-btn { display: none; }
+          .carousel-cards { justify-content: center; }
         }
       `}</style>
     </div>

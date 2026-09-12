@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+::root {
   --bg-color: #0a0a0a;
   --text-color: #ffffff;
   --accent-color: #ffffff;
@@ -11,6 +11,17 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --font-main: 'Inter', sans-serif;
   --font-heading: 'Galada', cursive;
+  --font-manrope: 'Manrope', sans-serif;
+  --ambrosia-pink: #fbcfe8;
+  --ambrosia-pink-dark: #f5a8d0;
+  --ambrosia-dark: #011411;
+  --ambrosia-teal: #0b8a78;
+  --ambrosia-teal-dark: #044e3b;
+  --ambrosia-blue: #0b4f8a;
+  --ambrosia-blue-dark: #04294e;
+  --radius-pill: 9999px;
+  --radius-card: 28px;
+  --radius-sm: 12px;
   --bg-inner: #0b8a78;
   --bg-mid: #044e3b;
   --bg-outer: #011411;

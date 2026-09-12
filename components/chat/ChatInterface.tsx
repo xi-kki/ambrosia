@@ -63,50 +63,90 @@ What are we formulating today?`,
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || streaming) return;
-    const um: Message = { id: `m_${Date.now()}`, role: 'user', content: input, timestamp: new Date() };
-    setMessages((p) => [...p, um]);
-    const txt = input;
+    const userMessage: Message = { 
+      id: `m_${Date.now()}`, 
+      role: 'user', 
+      content: input, 
+      timestamp: new Date() 
+    };
+    const currentInput = input;
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setStreaming(true);
+    
+    // Create assistant message placeholder
+    const assistantId = `m_${Date.now()}_assistant`;
+    setMessages((prev) => [...prev, { 
+      id: assistantId, 
+      role: 'assistant', 
+      content: '', 
+      toolCalls: [], 
+      toolResults: null,
+      timestamp: new Date() 
+    }]);
+
     try {
       const res = await fetch('/api/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, um], sessionId }),
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })), 
+          sessionId 
+        }),
       });
       if (!res.ok) throw new Error('Failed');
-      const rd = res.body?.getReader();
-      const dec = new TextDecoder();
-      let ac = '';
-      let tc: any[] = [];
-      let tr: any = null;
-      const aid = `m_${Date.now()}`;
-      let am: Message = { id: aid, role: 'assistant', content: '', timestamp: new Date() };
-      setMessages((p) => [...p, am]);
-      if (rd) {
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedContent = '';
+      let toolCalls: any[] = [];
+      let toolResults: any = null;
+
+      if (reader) {
         while (true) {
-          const { done, value } = await rd.read();
+          const { done, value } = await reader.read();
           if (done) break;
-          const chunk = dec.decode(value);
+          const chunk = decoder.decode(value, { stream: true });
           for (const line of chunk.split('\n')) {
             if (line.startsWith('0:')) {
-              ac += line.slice(2);
-              am = { ...am, content: ac };
-              setMessages((p) => p.map((m) => (m.id === aid ? am : m)));
+              accumulatedContent += line.slice(2);
+              setMessages((prev) => prev.map((m) => 
+                m.id === assistantId 
+                  ? { ...m, content: accumulatedContent, toolCalls, toolResults }
+                  : m
+              ));
             } else if (line.startsWith('9:')) {
               try {
-                const d = JSON.parse(line.slice(2));
-                if (d.toolCalls) tc = d.toolCalls;
-                if (d.toolResults) tr = d.toolResults;
-                am = { ...am, toolCalls: tc, toolResults: tr };
-                setMessages((p) => p.map((m) => (m.id === aid ? am : m)));
+                const data = JSON.parse(line.slice(2));
+                if (data.toolCalls) toolCalls = data.toolCalls;
+                if (data.toolResults) toolResults = data.toolResults;
+                setMessages((prev) => prev.map((m) => 
+                  m.id === assistantId 
+                    ? { ...m, content: accumulatedContent, toolCalls, toolResults }
+                    : m
+                ));
               } catch {}
+            } else if (line.startsWith('d:')) {
+              // Data stream finish marker
             }
           }
         }
       }
-    } catch {
-      setMessages((p) => [...p, { id: `m_${Date.now()}`, role: 'assistant', content: 'Error occurred. Try again.', timestamp: new Date() }]);
+      // Final update to ensure complete state
+      setMessages((prev) => prev.map((m) => 
+        m.id === assistantId 
+          ? { ...m, content: accumulatedContent, toolCalls, toolResults }
+          : m
+      ));
+    } catch (err) {
+      console.error('Chat error:', err);
+      setMessages((prev) => [...prev, { 
+        id: `m_${Date.now()}_error`, 
+        role: 'assistant', 
+        content: 'Error occurred. Please try again.', 
+        timestamp: new Date() 
+      }]);
+      // Remove the incomplete assistant message
+      setMessages((prev) => prev.filter((m) => m.id !== assistantId));
     } finally {
       setStreaming(false);
       taRef.current?.focus();
@@ -141,7 +181,7 @@ What are we formulating today?`,
                 submit(new Event('submit') as any);
               }}
               disabled={streaming}
-              className="px-3 py-1.5 text-xs font-manrope bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-manrope bg-ambrosia-pink/20 hover:bg-ambrosia-pink/30 text-ambrosia-dark border border-ambrosia-pink/30 rounded-full transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ambrosia-pink/40"
             >
               {q.label}
             </button>
@@ -183,7 +223,8 @@ What are we formulating today?`,
               'w-12 h-12 rounded-2xl flex items-center justify-center transition',
               'bg-gradient-to-br from-ambrosia-pink to-ambrosia-teal text-white',
               'hover:scale-105 hover:shadow-lg hover:shadow-ambrosia-pink/30',
-              'disabled:opacity-50 disabled:hover:scale-100'
+              'disabled:opacity-50 disabled:hover:scale-100',
+              'focus:outline-none focus:ring-2 focus:ring-ambrosia-pink/40 focus:ring-offset-2 focus:ring-offset-ambrosia-dark'
             )}
           >
             {streaming ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
@@ -238,8 +279,8 @@ function MessageBubble({
   );
 }
 
-function ToolCallsDisplay({ toolCalls }: { toolCalls: any[] }) {
-  const ic: any = {
+function ToolCallsDisplay({ toolCalls }: { toolCalls: Array<{ name: string; args: Record<string, unknown> }> }) {
+  const iconMap: Record<string, React.ElementType> = {
     searchIngredients: Search,
     calculateNutrition: Calculator,
     checkCompatibility: Shield,
@@ -249,17 +290,17 @@ function ToolCallsDisplay({ toolCalls }: { toolCalls: any[] }) {
   };
   return (
     <div className="mt-3 space-y-2 border-t border-white/10 pt-3">
-      {toolCalls.map((c, i) => {
-        const I = ic[c.name] || Zap;
+      {toolCalls.map((call, i) => {
+        const Icon = iconMap[call.name] || Zap;
         return (
           <details key={i} className="group">
             <summary className="flex items-center gap-2 text-xs text-white/60 cursor-pointer font-manrope">
-              <I className="w-3 h-3 text-ambrosia-pink" />
-              <span className="capitalize">{c.name.replace(/([A-Z])/g, ' $1').trim()}</span>
-              <span className="text-white/30 ml-auto">{JSON.stringify(c.args).slice(0, 80)}...</span>
+              <Icon className="w-3 h-3 text-ambrosia-pink" />
+              <span className="capitalize">{call.name.replace(/([A-Z])/g, ' $1').trim()}</span>
+              <span className="text-white/30 ml-auto">{JSON.stringify(call.args).slice(0, 80)}...</span>
             </summary>
             <pre className="mt-2 p-2 bg-black/30 rounded text-[10px] text-white/70 overflow-x-auto max-h-60">
-              {JSON.stringify(c.args, null, 2)}
+              {JSON.stringify(call.args, null, 2)}
             </pre>
           </details>
         );
@@ -268,10 +309,11 @@ function ToolCallsDisplay({ toolCalls }: { toolCalls: any[] }) {
   );
 }
 
-function ToolResultsDisplay({ results }: { results: any }) {
+function ToolResultsDisplay({ results }: { results: unknown }) {
   if (!results) return null;
-  if (results.recipe || (results.name && results.steps))
-    return <RecipeCardDisplay recipe={results.recipe || results} />;
+  const result = results as { recipe?: RecipeCard; name?: string; steps?: unknown[] };
+  if (result.recipe || (result.name && result.steps))
+    return <RecipeCardDisplay recipe={result.recipe || result as RecipeCard} />;
   return (
     <details className="mt-3 group">
       <summary className="flex items-center gap-2 text-xs text-white/60 cursor-pointer font-manrope">
