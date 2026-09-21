@@ -1,3 +1,5 @@
+'use client';
+
 import { ChatInterface } from '@/components/chat/ChatInterface';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';

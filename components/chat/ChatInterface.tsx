@@ -1,16 +1,10 @@
 'use client';
+
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Loader2, Sparkles, FlaskConical, ChefHat, Shield, Calculator, Search, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
-
-interface Message {
-  id: string;
-  role: 'user' | 'assistant' | 'tool';
-  content: string;
-  toolCalls?: any[];
-  toolResults?: any;
-  timestamp: Date;
-}
+import { useChat } from 'ai/react';
+import type { ToolInvocation } from 'ai';
 
 interface RecipeCard {
   id: string;
@@ -19,8 +13,9 @@ interface RecipeCard {
   description: string;
   steps: Array<{ ingredient: string; amount: number; unit: string; notes?: string }>;
   nutrition: {
-    perServing: { calories: number; sugarG: number; abv: number; costUsd: number };
-    per100ml: { calories: number; sugarG: number };
+    perServing: { calories: number; sugarG: number; carbsG: number; proteinG: number; fatG: number; abv: number; costUsd: number };
+    per100ml: { calories: number; sugarG: number; carbsG: number; proteinG: number; fatG: number; abv: number };
+    perBatch: { calories: number; sugarG: number; costUsd: number };
   };
   allergens: string[];
   dietaryTags: string[];
@@ -28,6 +23,22 @@ interface RecipeCard {
   costPerServing: number;
   costPerBatch: number;
 }
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant' | 'tool';
+  content: string;
+  toolCalls?: ToolInvocation[];
+  toolResults?: unknown;
+  timestamp: Date;
+}
+
+const qps = [
+  { label: 'Low-sugar ambrosia', prompt: 'Create a low-sugar tropical ambrosia with <5g sugar/100ml, vegan, <$0.50/serving' },
+  { label: 'Functional mocktail', prompt: 'Functional mocktail with adaptogens & nootropics, <50 cal, halal certified' },
+  { label: 'Batch scale', prompt: 'Scale my recipe to 1000L batch — check EU novel food & UK compliance' },
+  { label: 'Sugar substitute', prompt: 'Substitute stevia/monkfruit for sugar — maintain flavor, check regulatory' },
+];
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
@@ -53,112 +64,47 @@ What are we formulating today?`,
     },
   ]);
   const [input, setInput] = useState('');
-  const [streaming, setStreaming] = useState(false);
   const [sessionId] = useState(() => `sess_${Date.now()}_${Math.random().toString(36).slice(2)}`);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+
+  const chat = useChat({
+    api: '/api/agent',
+    initialMessages: messages,
+    onFinish: (message) => {
+      setMessages((prev) => [...prev.filter((m) => m.id !== 'welcome'), message as Message]);
+    },
+    onError: (err) => {
+      console.error('Chat error:', err);
+      setMessages((prev) => [...prev, {
+        id: `m_${Date.now()}_error`,
+        role: 'assistant',
+        content: 'Error occurred. Please try again.',
+        timestamp: new Date(),
+      }]);
+    },
+    body: { sessionId },
+  });
+
+  const { append } = chat;
+  const status = (chat as { status?: 'idle' | 'submitting' | 'streaming' | 'error' }).status;
+  const streaming = status === 'streaming';
   const scroll = useCallback(() => endRef.current?.scrollIntoView({ behavior: 'smooth' }), []);
   useEffect(() => scroll(), [messages, scroll]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || streaming) return;
-    const userMessage: Message = { 
-      id: `m_${Date.now()}`, 
-      role: 'user', 
-      content: input, 
-      timestamp: new Date() 
-    };
     const currentInput = input;
-    setMessages((prev) => [...prev, userMessage]);
     setInput('');
-    setStreaming(true);
-    
-    // Create assistant message placeholder
-    const assistantId = `m_${Date.now()}_assistant`;
-    setMessages((prev) => [...prev, { 
-      id: assistantId, 
-      role: 'assistant', 
-      content: '', 
-      toolCalls: [], 
-      toolResults: null,
-      timestamp: new Date() 
-    }]);
-
-    try {
-      const res = await fetch('/api/agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })), 
-          sessionId 
-        }),
-      });
-      if (!res.ok) throw new Error('Failed');
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedContent = '';
-      let toolCalls: any[] = [];
-      let toolResults: any = null;
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          for (const line of chunk.split('\n')) {
-            if (line.startsWith('0:')) {
-              accumulatedContent += line.slice(2);
-              setMessages((prev) => prev.map((m) => 
-                m.id === assistantId 
-                  ? { ...m, content: accumulatedContent, toolCalls, toolResults }
-                  : m
-              ));
-            } else if (line.startsWith('9:')) {
-              try {
-                const data = JSON.parse(line.slice(2));
-                if (data.toolCalls) toolCalls = data.toolCalls;
-                if (data.toolResults) toolResults = data.toolResults;
-                setMessages((prev) => prev.map((m) => 
-                  m.id === assistantId 
-                    ? { ...m, content: accumulatedContent, toolCalls, toolResults }
-                    : m
-                ));
-              } catch {}
-            } else if (line.startsWith('d:')) {
-              // Data stream finish marker
-            }
-          }
-        }
-      }
-      // Final update to ensure complete state
-      setMessages((prev) => prev.map((m) => 
-        m.id === assistantId 
-          ? { ...m, content: accumulatedContent, toolCalls, toolResults }
-          : m
-      ));
-    } catch (err) {
-      console.error('Chat error:', err);
-      setMessages((prev) => [...prev, { 
-        id: `m_${Date.now()}_error`, 
-        role: 'assistant', 
-        content: 'Error occurred. Please try again.', 
-        timestamp: new Date() 
-      }]);
-      // Remove the incomplete assistant message
-      setMessages((prev) => prev.filter((m) => m.id !== assistantId));
-    } finally {
-      setStreaming(false);
-      taRef.current?.focus();
-    }
+    await append({ role: 'user', content: currentInput });
+    taRef.current?.focus();
   };
 
-  const qps = [
-    { label: 'Low-sugar ambrosia', prompt: 'Create a low-sugar tropical ambrosia with <5g sugar/100ml, vegan, <$0.50/serving' },
-    { label: 'Functional mocktail', prompt: 'Functional mocktail with adaptogens & nootropics, <50 cal, halal certified' },
-    { label: 'Batch scale', prompt: 'Scale my recipe to 1000L batch — check EU novel food & UK compliance' },
-    { label: 'Sugar substitute', prompt: 'Substitute stevia/monkfruit for sugar — maintain flavor, check regulatory' },
-  ];
+  const handleQuickPrompt = (prompt: string) => {
+    setInput(prompt);
+    submit({ preventDefault: () => {} } as React.FormEvent);
+  };
 
   return (
     <div className="flex flex-col h-full bg-ambrosia-dark text-white font-sans">
@@ -176,10 +122,7 @@ What are we formulating today?`,
           {qps.map((q, i) => (
             <button
               key={i}
-              onClick={() => {
-                setInput(q.prompt);
-                submit(new Event('submit') as any);
-              }}
+              onClick={() => handleQuickPrompt(q.prompt)}
               disabled={streaming}
               className="px-3 py-1.5 text-xs font-manrope bg-ambrosia-pink/20 hover:bg-ambrosia-pink/30 text-ambrosia-dark border border-ambrosia-pink/30 rounded-full transition disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-ambrosia-pink/40"
             >
@@ -264,7 +207,7 @@ function MessageBubble({
         >
           <div className="prose prose-invert max-w-none text-sm">{format(message.content)}</div>
           {message.toolCalls?.length && <ToolCallsDisplay toolCalls={message.toolCalls} />}
-          {message.toolResults && <ToolResultsDisplay results={message.toolResults} />}
+          {message.toolResults ? <ToolResultsDisplay results={message.toolResults as { recipe?: RecipeCard; name?: string; steps?: unknown[] } | null} /> : null}
         </div>
         <p className={clsx('text-[10px] text-white/30 mt-1 px-1', u ? 'text-right' : '')}>
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -279,7 +222,7 @@ function MessageBubble({
   );
 }
 
-function ToolCallsDisplay({ toolCalls }: { toolCalls: Array<{ name: string; args: Record<string, unknown> }> }) {
+function ToolCallsDisplay({ toolCalls }: { toolCalls: ToolInvocation[] }) {
   const iconMap: Record<string, React.ElementType> = {
     searchIngredients: Search,
     calculateNutrition: Calculator,
@@ -291,12 +234,12 @@ function ToolCallsDisplay({ toolCalls }: { toolCalls: Array<{ name: string; args
   return (
     <div className="mt-3 space-y-2 border-t border-white/10 pt-3">
       {toolCalls.map((call, i) => {
-        const Icon = iconMap[call.name] || Zap;
+        const Icon = iconMap[call.toolName] || Zap;
         return (
           <details key={i} className="group">
             <summary className="flex items-center gap-2 text-xs text-white/60 cursor-pointer font-manrope">
               <Icon className="w-3 h-3 text-ambrosia-pink" />
-              <span className="capitalize">{call.name.replace(/([A-Z])/g, ' $1').trim()}</span>
+              <span className="capitalize">{call.toolName.replace(/([A-Z])/g, ' $1').trim()}</span>
               <span className="text-white/30 ml-auto">{JSON.stringify(call.args).slice(0, 80)}...</span>
             </summary>
             <pre className="mt-2 p-2 bg-black/30 rounded text-[10px] text-white/70 overflow-x-auto max-h-60">
@@ -313,7 +256,7 @@ function ToolResultsDisplay({ results }: { results: unknown }) {
   if (!results) return null;
   const result = results as { recipe?: RecipeCard; name?: string; steps?: unknown[] };
   if (result.recipe || (result.name && result.steps))
-    return <RecipeCardDisplay recipe={result.recipe || result as RecipeCard} />;
+    return <RecipeCardDisplay recipe={result.recipe ?? result as RecipeCard} />;
   return (
     <details className="mt-3 group">
       <summary className="flex items-center gap-2 text-xs text-white/60 cursor-pointer font-manrope">
