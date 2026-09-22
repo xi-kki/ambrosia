@@ -45,7 +45,7 @@ export function ChatInterface() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: `Welcome to **Dr. Bev** — your AI beverage formulation partner! 🧪
+      content: `Welcome to **Dr Bevis** — your AI beverage formulation partner! 🧪
 
 I help food-tech founders create production-ready drink recipes with:
 - **Precision nutrition** — calories, sugar, ABV per serving & 100ml
@@ -114,7 +114,7 @@ What are we formulating today?`,
             <FlaskConical className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-heading text-xl font-bold">Dr. Bev</h1>
+            <h1 className="font-heading text-xl font-bold">Dr Bevis</h1>
             <p className="text-xs text-white/60 font-manrope">AI Beverage Formulation Agent</p>
           </div>
         </div>
@@ -324,10 +324,15 @@ function RecipeCardDisplay({ recipe }: { recipe: RecipeCard }) {
   );
 }
 
+
 function format(c: string) {
-  return c
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code className="px-1.5 py-0.5 bg-black/30 rounded text-ambrosia-pink text-xs font-mono">$1</code>')
-    .replace(/\n/g, '<br/>');
+  // Simple custom renderer that returns React nodes instead of HTML string
+  const parts = c.split(/(\n|\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+  return parts.map((part, i) => {
+    if (part === '\n') return <br key={i} />;
+    if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('*') && part.endsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>;
+    if (part.startsWith('`') && part.endsWith('`')) return <code key={i} className="px-1.5 py-0.5 bg-black/30 rounded text-ambrosia-pink text-xs font-mono">{part.slice(1, -1)}</code>;
+    return <span key={i}>{part}</span>;
+  });
 }
