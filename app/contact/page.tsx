@@ -231,7 +231,7 @@ export default function ContactPage() {
               <div className="mt-8 p-5 bg-white/5 border border-white/10 rounded-2xl">
                 <h4 className="font-manrope font-medium text-white mb-4">Quick Links</h4>
                 <div className="grid grid-cols-2 gap-3">
-                  <QuickLink href="/formulate" icon={MessageSquare} label="Try Dr. Bev" desc="AI formulation" />
+                  <QuickLink href="/formulate" icon={MessageSquare} label="Try Dr Bevis" desc="AI formulation" />
                   <QuickLink href="/ingredients" icon={Building} label="Ingredient DB" desc="29+ ingredients" />
                   <QuickLink href="/shop" icon={Star} label="Shop Ambrosia" desc="Zero sugar drinks" />
                   <QuickLink href="/eco" icon={Globe} label="Sustainability" desc="Carbon negative" />

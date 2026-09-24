@@ -39,6 +39,7 @@ To run this project locally, ensure you have [Bun](https://bun.sh/) installed.
    - `GROQ_API_KEY` (Your Groq API key)
    - `AUTH_SECRET` (A random string for next-auth)
    - `RESEND_API_KEY` (Optional for emails, falls back gracefully)
+   - `NEXT_PUBLIC_APP_URL` (The public URL of the application, defaults to http://localhost:3000)
 
 4. **Run the development server:**
    ```bash
