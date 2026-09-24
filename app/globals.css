@@ -88,4 +88,11 @@ body {
   .main-title, .side-title { font-size: 5rem; }
   .hero-right { @apply items-center text-center; }
   .side-title { @apply text-center; }
+}model-viewer {
+  outline: none !important;
+  border: none !important;
+  --poster-color: transparent;
+}
+model-viewer:focus {
+  outline: none !important;
 }
