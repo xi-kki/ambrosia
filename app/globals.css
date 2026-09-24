@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-::root {
+:root {
   --bg-color: #0a0a0a;
   --text-color: #ffffff;
   --accent-color: #ffffff;
@@ -88,4 +88,14 @@ body {
   .main-title, .side-title { font-size: 5rem; }
   .hero-right { @apply items-center text-center; }
   .side-title { @apply text-center; }
+}
+
+model-viewer {
+  outline: none !important;
+  border: none !important;
+  --poster-color: transparent;
+}
+model-viewer:focus {
+  outline: 2px solid var(--ambrosia-pink) !important;
+  outline-offset: 4px;
 }

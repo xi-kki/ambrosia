@@ -460,13 +460,15 @@ export default function LandingPage() {
             <h1 className="main-title large-animation-1" style={{
               fontFamily: 'var(--font-heading)', fontSize: 'clamp(3.5rem, 8vw, 7rem)',
               lineHeight: 0.9, fontWeight: 400, textTransform: 'none',
-              whiteSpace: 'nowrap', color: 'white', letterSpacing: 'normal'
+              whiteSpace: 'nowrap', color: 'white', letterSpacing: '-0.02em',
+              textShadow: '0 4px 20px rgba(0,0,0,0.4)'
             }}>
-              <span className="outline">Create</span><br />
-              Healthy drinks
+              Pure Zero<br />
+              <span style={{ color: 'var(--ambrosia-pink)' }}>Refreshment</span>
             </h1>
             <p className="description" style={{
-              color: 'var(--muted-color)', fontSize: '1.1rem', lineHeight: 1.6, maxWidth: '400px'
+              color: 'var(--muted-color)', fontSize: '1.25rem', lineHeight: 1.6, maxWidth: '450px',
+              fontWeight: 400
             }}>
               Unleash the crisp taste of zero sugar. <br />
               Refreshment redefined in every bubble &mdash; <br />

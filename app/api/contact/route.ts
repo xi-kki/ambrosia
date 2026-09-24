@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
             </div>
             <p style="margin: 0 0 16px;">While you wait, you might want to:</p>
             <ul style="margin: 0 0 24px; padding-left: 20px;">
-              <li style="margin: 8px 0;"><a href="https://ambrosia.example/formulate" style="color: #fbcfe8;">Try Dr. Bev</a> — our AI formulation agent</li>
+              <li style="margin: 8px 0;"><a href="https://ambrosia.example/formulate" style="color: #fbcfe8;">Try Dr Bevis</a> — our AI formulation agent</li>
               <li style="margin: 8px 0;"><a href="https://ambrosia.example/ingredients" style="color: #fbcfe8;">Explore our ingredient database</a> — 29+ curated ingredients</li>
               <li style="margin: 8px 0;"><a href="https://ambrosia.example/shop" style="color: #fbcfe8;">Shop Ambrosia</a> — zero-sugar beverages delivered</li>
             </ul>

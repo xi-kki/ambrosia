@@ -12,7 +12,7 @@ const reviews = [
     company: 'Vitality Brands',
     avatar: 'SC',
     rating: 5,
-    text: 'Ambrosia\'s ingredient database saved us months of R&D. The AI formulation agent (Dr. Bev) created a functional sparkling water with L-Theanine and adaptogens that hit every regulatory mark for EU/US launch. We went from concept to pilot batch in 3 weeks.',
+    text: 'Ambrosia\'s ingredient database saved us months of R&D. The AI formulation agent (Dr Bevis) created a functional sparkling water with L-Theanine and adaptogens that hit every regulatory mark for EU/US launch. We went from concept to pilot batch in 3 weeks.',
     tags: ['Functional', 'Regulatory', 'Speed to Market'],
     verified: true,
     date: '2024-11-15',
@@ -77,7 +77,7 @@ const reviews = [
     company: 'Pure Pour',
     avatar: 'AT',
     rating: 5,
-    text: 'The sustainability calculator helped us quantify our circular packaging story for investors. 70% recycled aluminum, carbon-negative ops, water-positive roadmap — the data backed our Series A. Dr. Bev even suggested upcycled citrus for cost savings.',
+    text: 'The sustainability calculator helped us quantify our circular packaging story for investors. 70% recycled aluminum, carbon-negative ops, water-positive roadmap — the data backed our Series A. Dr Bevis even suggested upcycled citrus for cost savings.',
     tags: ['Sustainability', 'Fundraising', 'Cost Optimization'],
     verified: true,
     date: '2024-10-08',
@@ -90,7 +90,7 @@ const reviews = [
     company: 'Zen Sip',
     avatar: 'PS',
     rating: 5,
-    text: 'Created a zero-sugar, adaptogenic mocktail line using the functional nootropic profile. Dr. Bev handled the GRAS/DSHEA compliance check automatically. Our legal team was shocked — usually takes them weeks.',
+    text: 'Created a zero-sugar, adaptogenic mocktail line using the functional nootropic profile. Dr Bevis handled the GRAS/DSHEA compliance check automatically. Our legal team was shocked — usually takes them weeks.',
     tags: ['Adaptogens', 'Compliance', 'Legal Efficiency'],
     verified: true,
     date: '2024-12-12',
@@ -330,7 +330,7 @@ export default function ReviewsPage() {
             <Quote className="w-12 h-12 mx-auto text-ambrosia-pink/50 mb-6" />
             <h2 className="font-heading text-3xl md:text-4xl font-bold mb-4">Ready to Join Them?</h2>
             <p className="text-white/70 max-w-xl mx-auto mb-8">
-              Start formulating with Dr. Bev today. Zero setup, instant access to the world\'s most advanced beverage intelligence.
+              Start formulating with Dr Bevis today. Zero setup, instant access to the world\'s most advanced beverage intelligence.
             </p>
             <a
               href="/formulate"
