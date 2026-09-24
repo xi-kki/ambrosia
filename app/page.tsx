@@ -458,7 +458,7 @@ export default function LandingPage() {
             padding: '6rem 0', gap: '2rem', zIndex: 100
           }}>
             <h1 className="main-title large-animation-1" style={{
-              fontFamily: 'var(--font-heading)', fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+              fontFamily: 'var(--font-heading)', fontSize: 'clamp(2.2rem, 4vw, 3.8rem)',
               lineHeight: 0.9, fontWeight: 400, textTransform: 'none',
               whiteSpace: 'nowrap', color: 'white', letterSpacing: '-0.02em',
               textShadow: '0 4px 20px rgba(0,0,0,0.4)'
