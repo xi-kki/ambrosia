@@ -39,5 +39,8 @@ next-env.d.ts
 
 # drizzle
 drizzle/
+
+# freebuff local state
+.freebuff/
 .vercel
 .env*
