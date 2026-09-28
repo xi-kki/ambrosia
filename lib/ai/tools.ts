@@ -2,7 +2,7 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { ingredients, recipes, regulatoryDatabases } from '@/lib/db/schema';
-import { eq, inArray, sql, and, or, ilike } from 'drizzle-orm';
+import { eq, inArray, sql, and, or, ilike, arrayOverlaps, not } from 'drizzle-orm';
 
 export const searchIngredientsTool = tool({
   description: 'Find ingredients by category, nutrition, flavor tags, dietary needs, allergens, cost',
@@ -31,9 +31,9 @@ export const searchIngredientsTool = tool({
     if (maxAbv !== undefined) conds.push(sql`${ingredients.abv} <= ${maxAbv}`);
     if (isPremium !== undefined) conds.push(eq(ingredients.isPremium, isPremium));
     if (query) conds.push(or(ilike(ingredients.name, `%${query}%`), ilike(ingredients.description, `%${query}%`)));
-    if (flavorTags?.length) conds.push(sql`${ingredients.flavorTags} && ${flavorTags}`);
-    if (dietaryTags?.length) conds.push(sql`${ingredients.dietaryTags} && ${dietaryTags}`);
-    if (allergensToAvoid?.length) conds.push(sql`NOT (${ingredients.allergens} && ${allergensToAvoid})`);
+    if (flavorTags?.length) conds.push(arrayOverlaps(ingredients.flavorTags, flavorTags));
+    if (dietaryTags?.length) conds.push(arrayOverlaps(ingredients.dietaryTags, dietaryTags));
+    if (allergensToAvoid?.length) conds.push(not(arrayOverlaps(ingredients.allergens, allergensToAvoid)));
     if (flavorProfileMin) for (const [k,v] of Object.entries(flavorProfileMin)) conds.push(sql`(${ingredients.flavorProfile}->>${k})::float >= ${v}`);
     const res = await db.select().from(ingredients).where(conds.length ? and(...conds) : undefined).limit(limit).offset(offset).orderBy(ingredients.name);
     return { ingredients: res.map(i => ({ id: i.id, name: i.name, slug: i.slug, category: i.category, subcategory: i.subcategory, description: i.description, nutrition: { abv: i.abv, sugarGPer100ml: i.sugarGPer100ml, caloriesPer100ml: i.caloriesPer100ml }, flavorProfile: i.flavorProfile, flavorTags: i.flavorTags, dietaryTags: i.dietaryTags, allergens: i.allergens, typicalUseMl: i.typicalUseMl, costPerKgUsd: i.costPerKgUsd, costPerLiterUsd: i.costPerLiterUsd, regulatoryStatus: i.regulatoryStatus, isPremium: i.isPremium })), count: res.length };
@@ -109,8 +109,8 @@ export const suggestSubstitutesTool = tool({
     if (!target.length) return { substitutes: [], error: 'Ingredient not found' };
     const t = target[0]; const tf = t.flavorProfile as Record<string,number>;
     const conds = [eq(ingredients.isActive, true), sql`${ingredients.id} != ${ingredientId}`, eq(ingredients.category, t.category)];
-    if (dietaryTags?.length) conds.push(sql`${ingredients.dietaryTags} && ${dietaryTags}`);
-    if (allergensToAvoid?.length) conds.push(sql`NOT (${ingredients.allergens} && ${allergensToAvoid})`);
+    if (dietaryTags?.length) conds.push(arrayOverlaps(ingredients.dietaryTags, dietaryTags));
+    if (allergensToAvoid?.length) conds.push(not(arrayOverlaps(ingredients.allergens, allergensToAvoid)));
     if (maxCostPerKgUsd!==undefined) conds.push(sql`(${ingredients.costPerKgUsd} IS NULL OR ${ingredients.costPerKgUsd} <= ${maxCostPerKgUsd})`);
     if (maxSugarGPer100ml!==undefined) conds.push(sql`${ingredients.sugarGPer100ml} <= ${maxSugarGPer100ml}`);
     if (maxAbv!==undefined) conds.push(sql`${ingredients.abv} <= ${maxAbv}`);
