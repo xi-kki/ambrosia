@@ -1,12 +1,26 @@
 import { streamText, type CoreMessage } from 'ai';
 import { groq } from '@ai-sdk/groq';
 import { allTools } from '@/lib/ai/tools';
+import { z } from 'zod';
 
 export const maxDuration = 30;
 
+const requestSchema = z.object({
+  messages: z.array(z.any()).max(100),
+  sessionId: z.string().optional(),
+});
+
+
 export async function POST(req: Request) {
   try {
-    const { messages, sessionId } = await req.json();
+    const json = await req.json();
+    const parsed = requestSchema.safeParse(json);
+
+    if (!parsed.success) {
+      return new Response(JSON.stringify({ error: 'Invalid request body', details: parsed.error.format() }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    const { messages, sessionId } = parsed.data;
     const systemPrompt = `You are Dr. Bev, an expert beverage formulation AI for food-tech founders. You help create drink recipes (ambrosia beverages, mocktails, cocktails, functional beverages) with precision.
 
 Your expertise:
