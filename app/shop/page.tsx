@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingCart, Mail, Check, Truck, Shield, Sparkles, Leaf, Zap, Heart, Star, AlertCircle, Loader2 } from 'lucide-react';
+import { ShoppingCart, Mail, Check, Truck, Shield, Sparkles, Leaf, AlertCircle, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const products = [
