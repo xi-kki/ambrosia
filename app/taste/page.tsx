@@ -68,8 +68,10 @@ const flavorProfiles = [
   },
 ];
 
+const ingredientsMap = new Map(ingredients.map(i => [i.slug, i]));
+
 function getIngredientBySlug(slug: string): Ingredient | undefined {
-  return ingredients.find((i) => i.slug === slug);
+  return ingredientsMap.get(slug);
 }
 
 export default function TastePage() {
