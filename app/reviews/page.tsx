@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, Star, Quote, User, Heart, Shield, Award, Sparkles, Leaf, Zap, Brain, Droplet, Truck, Mail, Twitter, Linkedin, Instagram, Globe } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Star, Quote, Heart, Shield, Award, Sparkles, Mail, Twitter, Linkedin, Instagram, Globe } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const reviews = [
