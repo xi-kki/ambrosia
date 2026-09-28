@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+import "dotenv/config";
 
 import { db } from '@/lib/db';
 import { ingredients, recipes, suppliers, regulatoryDatabases } from '@/lib/db/schema';
@@ -163,29 +164,29 @@ async function seed() {
 
   // Insert ingredients
   console.log('Inserting ingredients...');
-  for (const ing of ingredientData) {
-    await db.insert(ingredients).values(ing).onConflictDoNothing();
+  if (ingredientData.length > 0) {
+    await db.insert(ingredients).values(ingredientData).onConflictDoNothing();
   }
   console.log(`✅ ${ingredientData.length} ingredients seeded`);
 
   // Insert suppliers
   console.log('Inserting suppliers...');
-  for (const sup of supplierData) {
-    await db.insert(suppliers).values(sup).onConflictDoNothing();
+  if (supplierData.length > 0) {
+    await db.insert(suppliers).values(supplierData).onConflictDoNothing();
   }
   console.log(`✅ ${supplierData.length} suppliers seeded`);
 
   // Insert recipes
   console.log('Inserting recipes...');
-  for (const rec of recipeData) {
-    await db.insert(recipes).values(rec).onConflictDoNothing();
+  if (recipeData.length > 0) {
+    await db.insert(recipes).values(recipeData).onConflictDoNothing();
   }
   console.log(`✅ ${recipeData.length} recipes seeded`);
 
   // Insert regulatory data
   console.log('Inserting regulatory data...');
-  for (const reg of regulatoryData) {
-    await db.insert(regulatoryDatabases).values(reg).onConflictDoNothing();
+  if (regulatoryData.length > 0) {
+    await db.insert(regulatoryDatabases).values(regulatoryData).onConflictDoNothing();
   }
   console.log(`✅ ${regulatoryData.length} regulatory entries seeded`);
 
