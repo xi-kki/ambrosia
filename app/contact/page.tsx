@@ -59,6 +59,32 @@ const testimonials = [
   },
 ];
 
+
+function validateForm(formData: Record<string, string>) {
+  const newErrors: Record<string, string> = {};
+  formFields.forEach((field) => {
+    const value = formData[field.name] || '';
+    if (field.required && !value.trim()) {
+      newErrors[field.name] = `${field.label} is required`;
+    }
+    if (field.name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      newErrors[field.name] = 'Invalid email address';
+    }
+  });
+  return newErrors;
+}
+
+async function handleApiSubmit(formData: Record<string, string>) {
+  const response = await fetch('/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData),
+  });
+
+  if (!response.ok) throw new Error('Failed to submit');
+  return response;
+}
+
 export default function ContactPage() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -73,16 +99,7 @@ export default function ContactPage() {
   };
 
   const validate = () => {
-    const newErrors: Record<string, string> = {};
-    formFields.forEach((field) => {
-      const value = formData[field.name] || '';
-      if (field.required && !value.trim()) {
-        newErrors[field.name] = `${field.label} is required`;
-      }
-      if (field.name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        newErrors[field.name] = 'Invalid email address';
-      }
-    });
+    const newErrors = validateForm(formData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -95,13 +112,7 @@ export default function ContactPage() {
     setSubmitError('');
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error('Failed to submit');
+      await handleApiSubmit(formData);
 
       setStatus('success');
       setFormData({});
