@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, MapPin, Phone, Send, Loader2, CheckCircle, AlertCircle, MessageSquare, Building, User, Globe, Star } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Loader2, CheckCircle, AlertCircle, MessageSquare, Building, Globe, Star } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const formFields = [
