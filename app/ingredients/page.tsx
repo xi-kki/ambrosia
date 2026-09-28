@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Filter, X, ChevronDown, Tag, Sparkles } from 'lucide-react';
+import { Search, Filter, ChevronDown, Sparkles } from 'lucide-react';
 import { clsx } from 'clsx';
 import { ingredients, categories, dietaryTags, type Ingredient } from '@/lib/data/ingredients';
 
