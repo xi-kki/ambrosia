@@ -1,7 +1,7 @@
 import { tool } from 'ai';
 import { z } from 'zod';
 import { db } from '@/lib/db';
-import { ingredients, recipes, regulatoryDatabases } from '@/lib/db/schema';
+import { ingredients, recipes } from '@/lib/db/schema';
 import { eq, inArray, sql, and, or, ilike } from 'drizzle-orm';
 
 export const searchIngredientsTool = tool({
