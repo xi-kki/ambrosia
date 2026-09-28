@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     const resend = getResendClient();
-    const { data, error } = await resend.emails.send({
+    const internalEmailPromise = resend.emails.send({
       from: 'Ambrosia Contact <contact@ambrosia.example>',
       to: ['hello@ambrosia.example'],
       subject: `New Contact: ${inquiry} - ${firstName} ${lastName}`,
@@ -71,13 +71,8 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    if (error) {
-      console.error('Resend error:', error);
-      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
-    }
-
     // Send confirmation to user
-    await resend.emails.send({
+    const userEmailPromise = resend.emails.send({
       from: 'Ambrosia <hello@ambrosia.example>',
       to: [email],
       subject: 'Thanks for contacting Ambrosia! 🍹',
@@ -105,6 +100,18 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+
+    const [internalResult, userResult] = await Promise.all([
+      internalEmailPromise,
+      userEmailPromise
+    ]);
+
+    const { data, error } = internalResult;
+
+    if (error) {
+      console.error('Resend error:', error);
+      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, id: data?.id });
   } catch (err) {
