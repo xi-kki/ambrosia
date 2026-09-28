@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Leaf, Recycle, Truck, Zap, Droplet, Shield, Award, Target, TrendingUp, Clock, Globe, Sprout, Factory, Wind, Sun } from 'lucide-react';
+import { Leaf, Recycle, Zap, Droplet, Shield, Award, Target, TrendingUp, Globe, Sprout, Wind } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const pillars = [
